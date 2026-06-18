@@ -114,7 +114,7 @@ void Game::run() {
         }
         
         Battle battle(player, monster);
-        bool victory = battle.start(currentRound != 3);
+        bool victory = battle.start(currentRound == 1);
         
         if (!victory) {
             displayDefeatScreen();

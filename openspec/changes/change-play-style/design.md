@@ -17,8 +17,8 @@
 
 ### 1. 牌組與手牌初始化邏輯調整
 - **決策**：在 `Player::initStartingDeck()` 中加入參數 `bool forceAllCards`。
-  - 當為 `true` 時，牌組精確填充資料庫中的 7 種卡牌各 1 張。
-  - 同時在 `Battle::start()` 中，若為 Round 1 或 Round 2，初始抽牌數量設定為當前牌組的總張數（7張），使玩家在開局時獲得整副卡牌。
+  - 當為 `true` 時（Round 1），牌組精確填充目前所有 7 種卡牌各 1 張。
+  - 同時在 `Battle::start(bool forceAllCards)` 中，若 `forceAllCards` 為 `true` (僅 Round 1)，初始抽牌數量設定為當前牌組的總張數（7張），使玩家在開局時獲得整副卡牌。若為 `false` (Round 2 及魔王戰)，則使用現有牌組（Round 2 不重新初始化牌組，直接洗牌並抽 5 張手牌）。
 
 ### 2. 卡牌抽取 (Draft) 動畫與邏輯
 - **決策**：在 `Game` 類別中新增一個卡牌抽取方法。
