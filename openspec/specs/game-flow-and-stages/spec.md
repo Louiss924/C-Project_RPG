@@ -2,9 +2,7 @@
 
 ## Purpose
 處理關卡流程（3 個關卡，每關 3 回合，第 3 回合為 Boss 戰）、關卡切換、勝敗判定與遊戲初始化。
-
 ## Requirements
-
 ### Requirement: Levels and Rounds Progression
 系統必須支援由 3 個關卡（Levels）組成的進度流程。每個關卡包含 3 個回合（Rounds），其中第 3 回合固定為首領（Boss）回合。在戰鬥勝利後，玩家應能晉級至下一回合或下一關卡。
 
@@ -26,3 +24,11 @@
 #### Scenario: Overall Game Victory
 - **WHEN** 第 3 關（Level 3）第 3 回合（Round 3）的 Boss HP 降低至 0 或更低
 - **THEN** 系統必須顯示「遊戲通關，勇者勝利！」的結算畫面，並在玩家按任意鍵後退出程式
+
+### Requirement: Card Drafting Phase Before Boss
+系統必須在擊敗大關第 2 回合怪物後、且進入第 3 回合 Boss 戰前，提供隨機卡牌抽取機制，讓玩家從所有卡牌池中隨機抽取 2 張加入永久牌組。
+
+#### Scenario: Card Drafting Process
+- **WHEN** 玩家擊敗當前關卡第 2 回合的怪物並確認進入卡牌抽取
+- **THEN** 系統隨機選取並展示抽取卡牌，在玩家確認後將這 2 張卡牌新增至玩家的永久牌組
+
