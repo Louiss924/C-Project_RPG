@@ -66,12 +66,22 @@ void Game::run() {
                 moves = {{"撞擊", 4, 0, "撞擊玩家"}, {"分裂準備", 0, 4, "分裂準備：蓄力並獲得 4 點護盾"}};
             } else if (currentRound == 2) {
                 monsterName = "哥布林斥候";
-                monsterHp = 35;
-                moves = {{"飛刀", 6, 0, "向玩家投擲飛刀"}, {"格擋姿勢", 0, 6, "格擋：獲得 6 點護盾"}};
+                monsterHp = 40;
+                moves = {
+                    {"飛刀", 6, 0, "向玩家投擲飛刀"},
+                    {"格擋姿勢", 0, 6, "格擋：獲得 6 點護盾"},
+                    {"三連投擲", 3, 0, "快速投擲三把飛刀 (造成 3 點傷害，重複 3 次)", false, 3},
+                    {"毒刃突襲", 4, 0, "毒刃突襲，對玩家造成 4 點傷害並扣減 1 點 SP！", false, 1, 1}
+                };
             } else {
                 monsterName = "哥布林酋長 (第一關 Boss)";
-                monsterHp = 55;
-                moves = {{"大棒重擊", 9, 0, "揮舞大棒重擊玩家"}, {"狂暴咆哮", 5, 5, "咆哮：造成 5 點傷害並獲得 5 點護盾"}};
+                monsterHp = 65;
+                moves = {
+                    {"大棒重擊", 9, 0, "揮舞大棒重擊玩家"},
+                    {"狂暴咆哮", 5, 5, "咆哮：造成 5 點傷害並獲得 5 點護盾"},
+                    {"震撼重擊", 8, 0, "震撼打擊玩家 (造成 8 點傷害，並使玩家眩暈 1 回合)", false, 1, 0, true},
+                    {"狂暴揮擊", 7, 0, "使出狂暴揮擊 (造成 7 點真實傷害！穿透護盾)", true}
+                };
             }
         } else if (currentLevel == 2) {
             if (currentRound == 1) {
@@ -109,6 +119,23 @@ void Game::run() {
         
         Monster monster(monsterName, monsterHp, monsterHp, moves);
         
+        // 戰鬥前劇情對話
+        if (currentLevel == 1) {
+            if (currentRound == 2) {
+                displayStoryDialogue("哥布林斥候", {
+                    "哼，闖入者！前面的史萊姆只是一個誘餌！",
+                    "你竟然能走到這一步...但也就到此為止了！",
+                    "嘗嘗我的利刃吧！"
+                });
+            } else if (currentRound == 3) {
+                displayStoryDialogue("哥布林酋長 (第一關 Boss)", {
+                    "無知的凡人！你竟敢殺害我的斥候，還敢打擾我的安寧！",
+                    "這裡將是你的墳墓！",
+                    "受死吧，感受酋長的大棒！"
+                });
+            }
+        }
+        
         if (currentRound == 3) {
             playBossWarningAnimation();
         }
@@ -119,6 +146,23 @@ void Game::run() {
         if (!victory) {
             displayDefeatScreen();
             return;
+        }
+        
+        // 戰鬥勝利劇情對話
+        if (currentLevel == 1) {
+            if (currentRound == 2) {
+                displayStoryDialogue("哥布林斥候", {
+                    "可惡...你這傢伙竟然...這麼強...",
+                    "不過別得意，酋長大人...絕對會替我報仇的...",
+                    "他在前方等著你...呃啊..."
+                });
+            } else if (currentRound == 3) {
+                displayStoryDialogue("哥布林酋長 (第一關 Boss)", {
+                    "這...這不可能...我堂堂酋長竟然會輸給一個人類...",
+                    "我的部落...完了...",
+                    "咳...下一關的魔物...不會放過你的..."
+                });
+            }
         }
         
         if (currentRound == 3) {
@@ -268,4 +312,18 @@ void Game::playBossWarningAnimation() {
         Sleep(200);
     }
     system("cls");
+}
+
+void Game::displayStoryDialogue(const std::string& character, const std::vector<std::string>& lines) {
+    system("cls");
+    std::cout << "\n\n\n";
+    std::cout << "      ==================================================" << std::endl;
+    std::cout << "       💬 【" << character << "】" << std::endl;
+    std::cout << "      --------------------------------------------------" << std::endl;
+    for (const auto& line : lines) {
+        std::cout << "        " << line << std::endl;
+    }
+    std::cout << "      ==================================================" << std::endl;
+    std::cout << "\n              ( 按任意鍵繼續... )" << std::endl;
+    _getch();
 }

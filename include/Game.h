@@ -13,6 +13,7 @@ private:
     void displayDefeatScreen();
     void draftCardsPhase();
     void playBossWarningAnimation();
+    void displayStoryDialogue(const std::string& character, const std::vector<std::string>& lines);
 public:
     Game();
     void run();

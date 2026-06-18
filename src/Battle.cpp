@@ -243,24 +243,40 @@ void Battle::executeMonsterTurn() {
         
         // 怪物造成傷害
         if (move.damage > 0) {
-            std::string attackMsg = "▶ 怪物 [" + monster.getName() + "] 使用 [" + move.name + "]，對玩家造成 " + std::to_string(move.damage) + " 點傷害！";
-            showActionMessage(attackMsg);
+            int totalDamageDealt = 0;
             
-            int originalHp = player.getHp();
-            int originalArmor = player.getArmor();
+            for (int h = 0; h < move.hits; ++h) {
+                std::string hitSuffix = (move.hits > 1) ? (" (第 " + std::to_string(h + 1) + " 段)") : "";
+                std::string attackMsg = "▶ 怪物 [" + monster.getName() + "] 使用 [" + move.name + "]" + hitSuffix + "，對玩家造成 " + std::to_string(move.damage) + " 點傷害！";
+                showActionMessage(attackMsg);
+                
+                player.takeDamage(move.damage, move.isTrueDamage, [this]() { this->drawUI(); });
+                totalDamageDealt += move.damage;
+                
+                if (player.getHp() <= 0) {
+                    break;
+                }
+            }
             
-            player.takeDamage(move.damage, move.isTrueDamage, [this]() { this->drawUI(); });
-            
-            // 計算實際受到的扣血與護盾扣減
-            int damageTaken = originalHp - player.getHp();
-            // 反擊判斷 (根據扣除的血量加護盾扣除量，也就是怪物本來要造成的傷害，或者是扣血。
-            // 規格書：將所受傷害的特定比例反彈。通常是以怪物的攻擊數值為準，我們以 move.damage 做反擊基數)
-            if (player.getIsCountering()) {
-                int counterDmg = move.damage * 0.5;
+            // 反擊判斷 (以本招總傷害為反彈基數)
+            if (player.getIsCountering() && player.getHp() > 0) {
+                int counterDmg = totalDamageDealt * 0.5;
                 if (counterDmg <= 0) counterDmg = 1; // 至少反彈 1 點
                 
                 showActionMessage("▶ 玩家觸發反擊！對怪物反彈了 " + std::to_string(counterDmg) + " 點傷害！");
                 monster.takeDamage(counterDmg, false, [this]() { this->drawUI(); });
+            }
+            
+            // 扣減玩家 SP
+            if (move.drainSp > 0 && player.getHp() > 0) {
+                showActionMessage("▶ 玩家受到吸能影響，被扣減了 " + std::to_string(move.drainSp) + " 點 SP！");
+                player.useSP(move.drainSp);
+            }
+            
+            // 眩暈玩家
+            if (move.stunsPlayer && player.getHp() > 0) {
+                showActionMessage("▶ 玩家受到震撼打擊，下一回合將 [眩暈無法行動]！");
+                player.setIsStunned(true);
             }
         } else if (move.armorGain == 0) {
             // 其他招式 (例如純蓄力或防守)
@@ -321,7 +337,16 @@ bool Battle::start(bool forceAllCards) {
     
     while (!isBattleOver) {
         if (isPlayerTurn) {
-            handleInput();
+            if (player.getIsStunned()) {
+                showActionMessage("▶ 勇者處於眩暈狀態，本回合無法行動！");
+                player.setIsStunned(false);
+                isPlayerTurn = false;
+                if (!isBattleOver) {
+                    drawUI();
+                }
+            } else {
+                handleInput();
+            }
         } else {
             executeMonsterTurn();
             if (!isBattleOver) {

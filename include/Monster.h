@@ -11,9 +11,12 @@ struct MonsterMove {
     int armorGain; // 招式是否獲得護盾
     std::string description;
     bool isTrueDamage;
+    int hits;
+    int drainSp;
+    bool stunsPlayer;
 
-    MonsterMove(std::string name = "", int damage = 0, int armorGain = 0, std::string description = "", bool isTrueDamage = false)
-        : name(name), damage(damage), armorGain(armorGain), description(description), isTrueDamage(isTrueDamage) {}
+    MonsterMove(std::string name = "", int damage = 0, int armorGain = 0, std::string description = "", bool isTrueDamage = false, int hits = 1, int drainSp = 0, bool stunsPlayer = false)
+        : name(name), damage(damage), armorGain(armorGain), description(description), isTrueDamage(isTrueDamage), hits(hits), drainSp(drainSp), stunsPlayer(stunsPlayer) {}
 };
 
 class Monster {
