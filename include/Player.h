@@ -48,9 +48,11 @@ public:
 
     // 受到傷害 (包含護盾扣減與血條逐點扣減動畫)
     void takeDamage(int damage, bool isTrueDamage = false, std::function<void()> drawCallback = nullptr);
+
     // 卡牌管理
-    void initStartingDeck();
+    void initStartingDeck(bool forceAllCards = false);
     void shuffleDeck();
+    void addCardToDeck(const Card& card);
     void drawCards(int count);
     void discardHand();
     void playCard(int index);

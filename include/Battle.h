@@ -26,7 +26,7 @@ public:
     Battle(Player& player, Monster& monster);
     
     // 開始戰鬥，回傳玩家是否獲勝
-    bool start();
+    bool start(bool forceAllCards = false);
 };
 
 #endif // BATTLE_H

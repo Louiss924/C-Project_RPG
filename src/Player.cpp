@@ -97,35 +97,45 @@ void Player::takeDamage(int damage, bool isTrueDamage, std::function<void()> dra
     }
 }
 
-void Player::initStartingDeck() {
+void Player::initStartingDeck(bool forceAllCards) {
     deck.clear();
     hand.clear();
     discardPile.clear();
 
-    // 4張 攻擊 (1 SP, 8 傷害)
-    for (int i = 0; i < 4; ++i) {
+    if (forceAllCards) {
+        // 每種卡牌精確各 1 張 (共 7 種)
         deck.push_back(Card("重擊", 1, CardEffectType::DAMAGE, 8, "造成 8 點傷害"));
-    }
-    // 3張 防禦 (1 SP, 6 護盾)
-    for (int i = 0; i < 3; ++i) {
         deck.push_back(Card("防禦", 1, CardEffectType::DEFEND, 6, "獲得 6 點護盾"));
-    }
-    // 2張 治療 (2 SP, 10 回復)
-    for (int i = 0; i < 2; ++i) {
-        deck.push_back(Card("治療術", 2, CardEffectType::HEAL, 10, "回復 10 點生命值"));
-    }
-    // 2張 反擊 (2 SP, 反擊姿勢)
-    for (int i = 0; i < 2; ++i) {
-        deck.push_back(Card("反擊姿態", 2, CardEffectType::COUNTER, 50, "反擊狀態：受到傷害時反彈 50% 給怪物"));
-    }
-    // 1張 生命上限提升 (2 SP, +15 MaxHP)
-    deck.push_back(Card("生命繁茂", 2, CardEffectType::MAX_HP_UP, 15, "最大生命值與當前生命值提升 15 點"));
-    // 1張 眩暈 (3 SP, 電暈)
-    deck.push_back(Card("電擊術", 3, CardEffectType::STUN, 1, "電暈怪物，使其下一回合眩暈無法行動"));
-    
-    // 2張 護盾 (1 SP, 5 護盾)
-    for (int i = 0; i < 2; ++i) {
         deck.push_back(Card("護盾", 1, CardEffectType::DEFEND, 5, "獲得 5 點護盾（無法防住真實傷害）"));
+        deck.push_back(Card("治療術", 2, CardEffectType::HEAL, 10, "回復 10 點生命值"));
+        deck.push_back(Card("反擊姿態", 2, CardEffectType::COUNTER, 50, "反擊狀態：受到傷害時反彈 50% 給怪物"));
+        deck.push_back(Card("生命繁茂", 2, CardEffectType::MAX_HP_UP, 15, "最大生命值與當前生命值提升 15 點"));
+        deck.push_back(Card("電擊術", 3, CardEffectType::STUN, 1, "電暈怪物，使其下一回合眩暈無法行動"));
+    } else {
+        // 4張 攻擊 (1 SP, 8 傷害)
+        for (int i = 0; i < 4; ++i) {
+            deck.push_back(Card("重擊", 1, CardEffectType::DAMAGE, 8, "造成 8 點傷害"));
+        }
+        // 3張 防禦 (1 SP, 6 護盾)
+        for (int i = 0; i < 3; ++i) {
+            deck.push_back(Card("防禦", 1, CardEffectType::DEFEND, 6, "獲得 6 點護盾"));
+        }
+        // 2張 治療 (2 SP, 10 回復)
+        for (int i = 0; i < 2; ++i) {
+            deck.push_back(Card("治療術", 2, CardEffectType::HEAL, 10, "回復 10 點生命值"));
+        }
+        // 2張 反擊 (2 SP, 反擊姿勢)
+        for (int i = 0; i < 2; ++i) {
+            deck.push_back(Card("反擊姿態", 2, CardEffectType::COUNTER, 50, "反擊狀態：受到傷害時反彈 50% 給怪物"));
+        }
+        // 1張 生命上限提升 (2 SP, +15 MaxHP)
+        deck.push_back(Card("生命繁茂", 2, CardEffectType::MAX_HP_UP, 15, "最大生命值與當前生命值提升 15 點"));
+        // 1張 眩暈 (3 SP, 電暈)
+        deck.push_back(Card("電擊術", 3, CardEffectType::STUN, 1, "電暈怪物，使其下一回合眩暈無法行動"));
+        // 2張 護盾 (1 SP, 5 護盾)
+        for (int i = 0; i < 2; ++i) {
+            deck.push_back(Card("護盾", 1, CardEffectType::DEFEND, 5, "獲得 5 點護盾（無法防住真實傷害）"));
+        }
     }
 
     shuffleDeck();
@@ -134,6 +144,10 @@ void Player::initStartingDeck() {
 void Player::shuffleDeck() {
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
     std::shuffle(deck.begin(), deck.end(), std::default_random_engine(seed));
+}
+
+void Player::addCardToDeck(const Card& card) {
+    deck.push_back(card);
 }
 
 void Player::drawCards(int count) {
