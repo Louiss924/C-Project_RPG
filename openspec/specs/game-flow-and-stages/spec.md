@@ -32,3 +32,14 @@
 - **WHEN** 玩家擊敗當前關卡第 2 回合的怪物並確認進入卡牌抽取
 - **THEN** 系統隨機選取並展示抽取卡牌，在玩家確認後將這 2 張卡牌新增至玩家的永久牌組
 
+### Requirement: Story Dialogue Before and After Combat
+The system MUST display story dialogue text before the start of a combat and after a combat victory for Level 1-2 and Level 1-3, and wait for player input before proceeding.
+
+#### Scenario: Show Dialogue Before Battle
+- **WHEN** entering the battle of Level 1-2 or Level 1-3 before combat starts
+- **THEN** the system MUST display the dialogue screen with text and wait for a keypress to start the battle
+
+#### Scenario: Show Dialogue After Battle Victory
+- **WHEN** the player defeats the monster of Level 1-2 or Level 1-3
+- **THEN** the system MUST display the victory story dialogue and wait for a keypress before progressing
+
