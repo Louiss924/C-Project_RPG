@@ -157,7 +157,7 @@ void Battle::executePlayerAction() {
     if (cursorIndex == 0) {
         // 普通攻擊
         showActionMessage("▶ 玩家使用了 [普通攻擊]，對怪物造成 5 點傷害，並回復 1 點 SP！");
-        monster.takeDamage(5, [this]() { this->drawUI(); });
+        monster.takeDamage(5, false, [this]() { this->drawUI(); });
         player.gainSP(1);
         
         if (monster.getHp() <= 0) {
@@ -189,7 +189,7 @@ void Battle::executePlayerAction() {
         if (type == CardEffectType::DAMAGE) {
             logMsg += "對怪物造成 " + std::to_string(val) + " 點傷害！";
             showActionMessage(logMsg);
-            monster.takeDamage(val, [this]() { this->drawUI(); });
+            monster.takeDamage(val, false, [this]() { this->drawUI(); });
         } else if (type == CardEffectType::HEAL) {
             logMsg += "回復自身 " + std::to_string(val) + " 點生命值！";
             showActionMessage(logMsg);
@@ -249,7 +249,7 @@ void Battle::executeMonsterTurn() {
             int originalHp = player.getHp();
             int originalArmor = player.getArmor();
             
-            player.takeDamage(move.damage, [this]() { this->drawUI(); });
+            player.takeDamage(move.damage, move.isTrueDamage, [this]() { this->drawUI(); });
             
             // 計算實際受到的扣血與護盾扣減
             int damageTaken = originalHp - player.getHp();
@@ -260,7 +260,7 @@ void Battle::executeMonsterTurn() {
                 if (counterDmg <= 0) counterDmg = 1; // 至少反彈 1 點
                 
                 showActionMessage("▶ 玩家觸發反擊！對怪物反彈了 " + std::to_string(counterDmg) + " 點傷害！");
-                monster.takeDamage(counterDmg, [this]() { this->drawUI(); });
+                monster.takeDamage(counterDmg, false, [this]() { this->drawUI(); });
             }
         } else if (move.armorGain == 0) {
             // 其他招式 (例如純蓄力或防守)

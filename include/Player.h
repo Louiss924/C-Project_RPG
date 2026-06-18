@@ -47,8 +47,7 @@ public:
     void gainMaxHP(int amount);
 
     // 受到傷害 (包含護盾扣減與血條逐點扣減動畫)
-    void takeDamage(int damage, std::function<void()> drawCallback = nullptr);
-
+    void takeDamage(int damage, bool isTrueDamage = false, std::function<void()> drawCallback = nullptr);
     // 卡牌管理
     void initStartingDeck();
     void shuffleDeck();

@@ -66,9 +66,9 @@ void Player::gainMaxHP(int amount) {
     hp += amount;
 }
 
-void Player::takeDamage(int damage, std::function<void()> drawCallback) {
+void Player::takeDamage(int damage, bool isTrueDamage, std::function<void()> drawCallback) {
     int actualDamage = damage;
-    if (armor > 0) {
+    if (!isTrueDamage && armor > 0) {
         if (actualDamage <= armor) {
             armor -= actualDamage;
             actualDamage = 0;
@@ -122,6 +122,11 @@ void Player::initStartingDeck() {
     deck.push_back(Card("生命繁茂", 2, CardEffectType::MAX_HP_UP, 15, "最大生命值與當前生命值提升 15 點"));
     // 1張 眩暈 (3 SP, 電暈)
     deck.push_back(Card("電擊術", 3, CardEffectType::STUN, 1, "電暈怪物，使其下一回合眩暈無法行動"));
+    
+    // 2張 護盾 (1 SP, 5 護盾)
+    for (int i = 0; i < 2; ++i) {
+        deck.push_back(Card("護盾", 1, CardEffectType::DEFEND, 5, "獲得 5 點護盾（無法防住真實傷害）"));
+    }
 
     shuffleDeck();
 }

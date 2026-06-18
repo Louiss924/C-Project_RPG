@@ -28,10 +28,9 @@ void Monster::setArmor(int newArmor) {
 }
 
 void Monster::setIsStunned(bool state) { isStunned = state; }
-
-void Monster::takeDamage(int damage, std::function<void()> drawCallback) {
+void Monster::takeDamage(int damage, bool isTrueDamage, std::function<void()> drawCallback) {
     int actualDamage = damage;
-    if (armor > 0) {
+    if (!isTrueDamage && armor > 0) {
         if (actualDamage <= armor) {
             armor -= actualDamage;
             actualDamage = 0;
