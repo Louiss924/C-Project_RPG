@@ -9,7 +9,10 @@ enum class CardEffectType {
     DEFEND,      // 增加護盾
     COUNTER,     // 反擊狀態附加
     MAX_HP_UP,   // 提升最大生命上限
-    STUN         // 怪物電暈 (眩暈)
+    STUN,        // 怪物電暈 (眩暈)
+    TRUE_DAMAGE, // 真實傷害
+    BREAK_ARMOR_DAMAGE, // 破甲傷害
+    MULTI_DAMAGE // 多段連擊傷害
 };
 
 class Card {

@@ -220,7 +220,10 @@ void Game::draftCardsPhase() {
         Card("治療術", 2, CardEffectType::HEAL, 10, "回復 10 點生命值"),
         Card("反擊姿態", 2, CardEffectType::COUNTER, 50, "反擊狀態：受到傷害時反彈 50% 給怪物"),
         Card("生命繁茂", 2, CardEffectType::MAX_HP_UP, 15, "最大生命值與當前生命值提升 15 點"),
-        Card("電擊術", 3, CardEffectType::STUN, 1, "電暈怪物，使其下一回合眩暈無法行動")
+        Card("電擊術", 3, CardEffectType::STUN, 1, "電暈怪物，使其下一回合眩暈無法行動"),
+        Card("迅捷連擊", 2, CardEffectType::MULTI_DAMAGE, 4, "快速連擊 3 次，每次造成 4 點連擊傷害"),
+        Card("貫穿擊", 1, CardEffectType::TRUE_DAMAGE, 8, "造成 8 點真實傷害（無視怪物護盾）"),
+        Card("破甲重錘", 2, CardEffectType::BREAK_ARMOR_DAMAGE, 7, "粉碎怪物全部護盾，並造成 7 點傷害")
     };
 
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();

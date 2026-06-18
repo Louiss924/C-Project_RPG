@@ -31,6 +31,9 @@ std::string Card::getEffectTypeName() const {
         case CardEffectType::COUNTER: return "反擊";
         case CardEffectType::MAX_HP_UP: return "最大生命值提升";
         case CardEffectType::STUN: return "眩暈";
+        case CardEffectType::TRUE_DAMAGE: return "真實傷害";
+        case CardEffectType::BREAK_ARMOR_DAMAGE: return "破甲";
+        case CardEffectType::MULTI_DAMAGE: return "連擊";
         default: return "未知";
     }
 }

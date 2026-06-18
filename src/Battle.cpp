@@ -210,6 +210,24 @@ void Battle::executePlayerAction() {
             logMsg += "電暈了怪物！使其下回合眩暈無法行動。";
             showActionMessage(logMsg);
             monster.setIsStunned(true);
+        } else if (type == CardEffectType::TRUE_DAMAGE) {
+            logMsg += "對怪物造成 " + std::to_string(val) + " 點真實傷害（穿透護盾）！";
+            showActionMessage(logMsg);
+            monster.takeDamage(val, true, [this]() { this->drawUI(); });
+        } else if (type == CardEffectType::BREAK_ARMOR_DAMAGE) {
+            logMsg += "一擊粉碎了怪物的護盾，並造成 " + std::to_string(val) + " 點傷害！";
+            showActionMessage(logMsg);
+            monster.setArmor(0);
+            monster.takeDamage(val, false, [this]() { this->drawUI(); });
+        } else if (type == CardEffectType::MULTI_DAMAGE) {
+            for (int i = 0; i < 3; ++i) {
+                std::string hitMsg = "▶ 玩家打出 [" + card.getName() + "] (第 " + std::to_string(i + 1) + " 連擊)，對怪物造成 " + std::to_string(val) + " 點傷害！";
+                showActionMessage(hitMsg);
+                monster.takeDamage(val, false, [this]() { this->drawUI(); });
+                if (monster.getHp() <= 0) {
+                    break;
+                }
+            }
         }
         
         // 棄置卡牌
