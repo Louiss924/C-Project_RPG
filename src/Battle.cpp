@@ -298,14 +298,12 @@ void Battle::executeMonsterTurn() {
 }
 
 bool Battle::start(bool forceAllCards) {
-    // 初始化玩家牌組並抽牌
     if (forceAllCards) {
         player.initStartingDeck(true);
         player.drawCards(player.getDeck().size());
     } else {
-        // 保留現有牌組（包含增抽卡牌），僅進行洗牌並抽 5 張手牌
-        player.shuffleDeck();
-        player.drawCards(5);
+        // 玩家不會重新獲得/重置牌組，而是直接繼承並保留前一回合結束時的牌組（包含所有血量與卡牌狀態）。
+        // 且玩家不用洗牌，所以在此不做任何洗牌與抽牌動作，直接使用現有的卡牌狀態。
     }
     
     // 初始化怪物意圖
