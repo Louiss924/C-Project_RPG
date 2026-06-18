@@ -284,9 +284,11 @@ void Battle::executeMonsterTurn() {
     player.resetTurnState();
     monster.resetTurnState();
     
-    // 棄牌並抽 5 張新牌
-    player.discardHand();
-    player.drawCards(5);
+    // 補抽牌至手牌有 5 張 (保留手牌，不丟棄)
+    int currentHandSize = player.getHand().size();
+    if (currentHandSize < 5) {
+        player.drawCards(5 - currentHandSize);
+    }
     
     // 怪物決定下回合招式
     monster.rollIntent();
