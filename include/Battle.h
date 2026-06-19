@@ -21,6 +21,8 @@ private:
     void executeMonsterTurn();
     void showActionMessage(const std::string& msg);
     std::string getHealthBar(int hp, int maxHp, int length = 20) const;
+    static int getUTF8DisplayWidth(const std::string& str);
+    static std::string padUTF8Text(const std::string& text, int targetWidth);
 
 public:
     Battle(Player& player, Monster& monster);

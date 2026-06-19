@@ -8,7 +8,7 @@
 #include <random>
 #include <windows.h>
 
-Game::Game() : player(80, 80, 3, 10), currentLevel(1), currentRound(1), menuCursor(0) {}
+Game::Game() : player(80, 80, 7, 10), currentLevel(1), currentRound(1), menuCursor(0) {}
 
 void Game::displayLevelStartMessage() {
     system("cls");
@@ -211,11 +211,11 @@ void Game::run() {
             } else {
                 std::cout << std::endl;
                 std::cout << "🎉 擊敗了當前關卡 Boss！即將晉級至下一關！" << std::endl;
-                std::cout << "能量（SP）重置為 3 點，保留當前生命值與生命上限。" << std::endl;
+                std::cout << "能量（SP）重置為 7 點，保留當前生命值與生命上限。" << std::endl;
                 std::cout << "請按任意鍵繼續..." << std::endl;
                 _getch();
                 
-                player.setSp(3);
+                player.setSp(7);
                 currentLevel++;
                 currentRound = 1;
                 saveGame();

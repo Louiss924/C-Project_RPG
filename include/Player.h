@@ -21,7 +21,7 @@ private:
     std::vector<Card> discardPile;
 
 public:
-    Player(int hp = 80, int maxHp = 80, int sp = 3, int maxSp = 10);
+    Player(int hp = 80, int maxHp = 80, int sp = 7, int maxSp = 10);
 
     static Card createCardByName(const std::string& name);
 

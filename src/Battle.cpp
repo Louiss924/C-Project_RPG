@@ -26,6 +26,64 @@ std::string Battle::getHealthBar(int hp, int maxHp, int length) const {
     return bar;
 }
 
+int Battle::getUTF8DisplayWidth(const std::string& str) {
+    int width = 0;
+    size_t i = 0;
+    while (i < str.length()) {
+        unsigned char c = str[i];
+        if (c < 0x80) {
+            width += 1;
+            i += 1;
+        } else if ((c & 0xE0) == 0xC0) {
+            width += 1;
+            i += 2;
+        } else if ((c & 0xF0) == 0xE0) {
+            width += 2;
+            i += 3;
+        } else if ((c & 0xF8) == 0xF0) {
+            width += 2;
+            i += 4;
+        } else {
+            i += 1;
+        }
+    }
+    return width;
+}
+
+std::string Battle::padUTF8Text(const std::string& text, int targetWidth) {
+    int currentWidth = getUTF8DisplayWidth(text);
+    if (currentWidth >= targetWidth) {
+        return text;
+    }
+    int totalPadding = targetWidth - currentWidth;
+    int leftPadding = totalPadding / 2;
+    int rightPadding = totalPadding - leftPadding;
+    
+    std::string result = "";
+    for (int i = 0; i < leftPadding; ++i) {
+        result += " ";
+    }
+    result += text;
+    for (int i = 0; i < rightPadding; ++i) {
+        result += " ";
+    }
+    return result;
+}
+
+static std::string getCardShortDesc(const std::string& name) {
+    if (name == "重擊") return "造成 8 點傷害";
+    if (name == "防禦") return "獲得 6 點護盾";
+    if (name == "護盾") return "獲得 5 點護盾";
+    if (name == "治療術") return "回復 10 生命";
+    if (name == "反擊姿態") return "反擊 50% 傷害";
+    if (name == "生命繁茂") return "生命與上限 +15";
+    if (name == "電擊術") return "眩暈怪物 1回合";
+    if (name == "迅捷連擊") return "連擊 3次 x 4傷";
+    if (name == "貫穿擊") return "8 點真實傷害";
+    if (name == "破甲重錘") return "破盾並造成 7傷";
+    return "";
+}
+
 void Battle::drawUI() {
     system("cls");
     
@@ -100,18 +158,88 @@ void Battle::drawUI() {
             std::cout << "   [普通攻擊] (消耗: 0 SP) | 造成 5 點傷害，回復 1 點 SP" << std::endl;
         }
         
-        // Option 1..N: 手牌
+        // Option 1..N: 手牌 (橫向並排 ASCII 卡牌框，每行最多 5 張)
         const auto& hand = player.getHand();
-        for (int i = 0; i < static_cast<int>(hand.size()); ++i) {
-            int optionId = i + 1;
-            const auto& card = hand[i];
-            if (cursorIndex == optionId) {
-                std::cout << " > [" << card.getName() << "] (消耗: " << card.getSpCost() << " SP) | "
-                          << card.getDescription() << std::endl;
-            } else {
-                std::cout << "   [" << card.getName() << "] (消耗: " << card.getSpCost() << " SP) | "
-                          << card.getDescription() << std::endl;
+        int totalHand = hand.size();
+        for (int startIdx = 0; startIdx < totalHand; startIdx += 5) {
+            int endIdx = std::min(startIdx + 5, totalHand);
+            
+            // 第一行：頂框
+            for (int i = startIdx; i < endIdx; ++i) {
+                int optionId = i + 1;
+                bool isSelected = (cursorIndex == optionId);
+                if (isSelected) {
+                    std::cout << "*==============*";
+                } else {
+                    std::cout << ".--------------.";
+                }
+                std::cout << "  ";
             }
+            std::cout << std::endl;
+            
+            // 第二行：卡牌名稱
+            for (int i = startIdx; i < endIdx; ++i) {
+                int optionId = i + 1;
+                bool isSelected = (cursorIndex == optionId);
+                const auto& card = hand[i];
+                std::string nameStr = isSelected ? ("* " + card.getName() + " *") : card.getName();
+                std::string paddedName = padUTF8Text(nameStr, 14);
+                if (isSelected) {
+                    std::cout << "*" << paddedName << "*";
+                } else {
+                    std::cout << "|" << paddedName << "|";
+                }
+                std::cout << "  ";
+            }
+            std::cout << std::endl;
+            
+            // 第三行：能量消耗
+            for (int i = startIdx; i < endIdx; ++i) {
+                int optionId = i + 1;
+                bool isSelected = (cursorIndex == optionId);
+                const auto& card = hand[i];
+                std::string spStr = "消耗: " + std::to_string(card.getSpCost()) + " SP";
+                std::string paddedSp = padUTF8Text(spStr, 14);
+                if (isSelected) {
+                    std::cout << "*" << paddedSp << "*";
+                } else {
+                    std::cout << "|" << paddedSp << "|";
+                }
+                std::cout << "  ";
+            }
+            std::cout << std::endl;
+            
+            // 第四行：效果描述
+            for (int i = startIdx; i < endIdx; ++i) {
+                int optionId = i + 1;
+                bool isSelected = (cursorIndex == optionId);
+                const auto& card = hand[i];
+                std::string desc = getCardShortDesc(card.getName());
+                std::string paddedDesc = padUTF8Text(desc, 14);
+                if (isSelected) {
+                    std::cout << "*" << paddedDesc << "*";
+                } else {
+                    std::cout << "|" << paddedDesc << "|";
+                }
+                std::cout << "  ";
+            }
+            std::cout << std::endl;
+            
+            // 第五行：底框
+            for (int i = startIdx; i < endIdx; ++i) {
+                int optionId = i + 1;
+                bool isSelected = (cursorIndex == optionId);
+                if (isSelected) {
+                    std::cout << "*==============*";
+                } else {
+                    std::cout << "'--------------'";
+                }
+                std::cout << "  ";
+            }
+            std::cout << std::endl;
+            
+            // 卡牌行間隔
+            std::cout << std::endl;
         }
         std::cout << "==========================================================" << std::endl;
     } else {
