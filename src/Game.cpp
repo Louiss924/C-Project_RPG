@@ -6,7 +6,7 @@
 #include <random>
 #include <windows.h>
 
-Game::Game() : player(80, 80, 3, 10), currentLevel(1), currentRound(1) {}
+Game::Game() : player(80, 80, 3, 10), currentLevel(1), currentRound(1), menuCursor(0) {}
 
 void Game::displayLevelStartMessage() {
     system("cls");
@@ -52,6 +52,24 @@ void Game::displayVictoryScreen() {
 }
 
 void Game::run() {
+    bool inMenu = true;
+    while (inMenu) {
+        displayMainMenu();
+        if (menuCursor == 0) {
+            inMenu = false;
+            // 清除剩餘的鍵盤輸入，避免 Enter 連跳
+            while (_kbhit()) {
+                _getch();
+            }
+        } else if (menuCursor == 1) {
+            displayInstructions();
+        } else if (menuCursor == 2) {
+            system("cls");
+            std::cout << "\n\n        感謝您的遊玩！再見！\n\n";
+            exit(0);
+        }
+    }
+
     while (currentLevel <= 3) {
         displayLevelStartMessage();
         
@@ -328,5 +346,77 @@ void Game::displayStoryDialogue(const std::string& character, const std::vector<
     }
     std::cout << "      ==================================================" << std::endl;
     std::cout << "\n              ( 按任意鍵繼續... )" << std::endl;
+    _getch();
+}
+
+void Game::displayMainMenu() {
+    bool selected = false;
+    while (!selected) {
+        system("cls");
+        std::cout << "\n\n";
+        std::cout << "      ========================================================" << std::endl;
+        std::cout << "             🛡️  傳奇勇者：卡牌冒險 (Legend of Card Hero) 🛡️" << std::endl;
+        std::cout << "      ========================================================" << std::endl;
+        std::cout << "\n\n";
+        
+        std::vector<std::string> options = { "開始冒險", "遊戲說明", "離開遊戲" };
+        for (int i = 0; i < 3; ++i) {
+            if (menuCursor == i) {
+                std::cout << "                  > [ " << options[i] << " ] <" << std::endl;
+            } else {
+                std::cout << "                    [ " << options[i] << " ]  " << std::endl;
+            }
+            std::cout << "\n";
+        }
+        std::cout << "      ========================================================" << std::endl;
+        std::cout << "           (使用 ↑/↓ 方向鍵移動游標，Enter 鍵確認選擇)" << std::endl;
+        
+        int ch = _getch();
+        if (ch == 0 || ch == 224) {
+            int next_ch = _getch();
+            if (next_ch == 72) { // Up arrow
+                menuCursor = (menuCursor - 1 + 3) % 3;
+            } else if (next_ch == 80) { // Down arrow
+                menuCursor = (menuCursor + 1) % 3;
+            }
+        } else if (ch == 13 || ch == 10) { // Enter
+            selected = true;
+        }
+    }
+}
+
+void Game::displayInstructions() {
+    system("cls");
+    std::cout << "\n";
+    std::cout << "      ==========================================================" << std::endl;
+    std::cout << "                     📜 遊戲說明 (Instructions) 📜" << std::endl;
+    std::cout << "      ==========================================================" << std::endl;
+    std::cout << "\n";
+    std::cout << "      【基礎規則】" << std::endl;
+    std::cout << "      - 玩家的最大生命值 (HP) 為 80。歸 0 時遊戲結束。" << std::endl;
+    std::cout << "      - 每回合可以選擇 [普通攻擊] (不耗能量，回復 1 SP，造成 5 傷害) 或使用手牌。" << std::endl;
+    std::cout << "      - 每一大關的第 3 回合是 Boss 戰。戰勝前夕可自隨機池增抽 2 張卡牌。" << std::endl;
+    std::cout << "      - 每回合結束時手牌會清空，並重新補滿 5 張手牌。護盾值亦會每回合清零。" << std::endl;
+    std::cout << "\n";
+    std::cout << "      【卡牌分類介紹】" << std::endl;
+    std::cout << "      1. ⚔️ 攻擊型卡牌 (Offensive)" << std::endl;
+    std::cout << "         - 重擊 (1 SP): 造成 8 點傷害。" << std::endl;
+    std::cout << "         - 迅捷連擊 (2 SP): 快速連擊 3 次，每次造成 4 點連擊傷害 (共 12 點)。" << std::endl;
+    std::cout << "         - 貫穿擊 (1 SP): 造成 8 點真實傷害 (無視怪物護盾)。" << std::endl;
+    std::cout << "         - 破甲重錘 (2 SP): 粉碎怪物全部護盾 (歸 0)，並造成 7 點傷害。" << std::endl;
+    std::cout << "      2. 🛡️ 防禦與反擊型卡牌 (Defensive & Counter)" << std::endl;
+    std::cout << "         - 防禦 (1 SP): 獲得 6 點護盾。" << std::endl;
+    std::cout << "         - 護盾 (1 SP): 獲得 5 點護盾（無法抵擋真實傷害）。" << std::endl;
+    std::cout << "         - 反擊姿態 (2 SP): 附加反擊狀態，下回合反彈 50% 受到的傷害。" << std::endl;
+    std::cout << "      3. 🌳 輔助與回復型卡牌 (Utility & Recovery)" << std::endl;
+    std::cout << "         - 治療術 (2 SP): 回復 10 點生命值。" << std::endl;
+    std::cout << "         - 生命繁茂 (2 SP): 最大生命值與當前生命值提升 15 點。" << std::endl;
+    std::cout << "         - 電擊術 (3 SP): 電暈怪物，使其下一回合眩暈無法行動。" << std::endl;
+    std::cout << "\n";
+    std::cout << "      【操作說明】" << std::endl;
+    std::cout << "      - 於選單或戰鬥出牌時，使用 [方向鍵 ↑/↓] 切換高亮選項。" << std::endl;
+    std::cout << "      - 按下 [Enter 鍵] 確認選擇/出牌。" << std::endl;
+    std::cout << "      ==========================================================" << std::endl;
+    std::cout << "                         ( 按任意鍵返回主選單 )" << std::endl;
     _getch();
 }

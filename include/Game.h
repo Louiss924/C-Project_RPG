@@ -8,6 +8,9 @@ private:
     Player player;
     int currentLevel;
     int currentRound;
+    int menuCursor; // 記錄主選單游標位置
+    void displayMainMenu(); // 顯示主選單並處理輸入
+    void displayInstructions(); // 顯示遊戲說明頁面
     void displayLevelStartMessage();
     void displayVictoryScreen();
     void displayDefeatScreen();
