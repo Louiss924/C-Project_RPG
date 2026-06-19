@@ -486,6 +486,27 @@ void Game::saveGame() {
         }
     }
     file << "\n";
+
+    // 第三行：手牌卡牌（以逗號分隔）
+    const auto& hand = player.getHand();
+    for (size_t i = 0; i < hand.size(); ++i) {
+        file << hand[i].getName();
+        if (i < hand.size() - 1) {
+            file << ",";
+        }
+    }
+    file << "\n";
+
+    // 第四行：棄牌堆卡牌（以逗號分隔）
+    const auto& discard = player.getDiscardPile();
+    for (size_t i = 0; i < discard.size(); ++i) {
+        file << discard[i].getName();
+        if (i < discard.size() - 1) {
+            file << ",";
+        }
+    }
+    file << "\n";
+
     file.close();
 }
 
@@ -514,29 +535,46 @@ bool Game::loadGame() {
         return false;
     }
     
-    std::string secondLine;
-    if (!std::getline(file, secondLine)) {
-        file.close();
-        return false;
-    }
+    std::string secondLine = "";
+    std::string thirdLine = "";
+    std::string fourthLine = "";
+    std::getline(file, secondLine);
+    std::getline(file, thirdLine);
+    std::getline(file, fourthLine);
     
+    file.close();
+
     std::vector<Card> loadedDeck;
-    std::stringstream ssCards(secondLine);
+    std::stringstream ssDeck(secondLine);
     std::string cardName;
-    while (std::getline(ssCards, cardName, ',')) {
+    while (std::getline(ssDeck, cardName, ',')) {
         if (!cardName.empty()) {
             loadedDeck.push_back(Player::createCardByName(cardName));
         }
     }
-    
-    file.close();
+
+    std::vector<Card> loadedHand;
+    std::stringstream ssHand(thirdLine);
+    while (std::getline(ssHand, cardName, ',')) {
+        if (!cardName.empty()) {
+            loadedHand.push_back(Player::createCardByName(cardName));
+        }
+    }
+
+    std::vector<Card> loadedDiscard;
+    std::stringstream ssDiscard(fourthLine);
+    while (std::getline(ssDiscard, cardName, ',')) {
+        if (!cardName.empty()) {
+            loadedDiscard.push_back(Player::createCardByName(cardName));
+        }
+    }
     
     // 載入成功，更新遊戲與玩家狀態
     currentLevel = lvl;
     currentRound = rnd;
     player.setMaxHp(maxHpVal);
     player.setHp(hpVal);
-    player.setDeck(loadedDeck);
+    player.setDeckState(loadedDeck, loadedHand, loadedDiscard);
     
     return true;
 }

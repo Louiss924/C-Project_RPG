@@ -157,10 +157,10 @@ void Player::addCardToDeck(const Card& card) {
     deck.push_back(card);
 }
 
-void Player::setDeck(const std::vector<Card>& newDeck) {
+void Player::setDeckState(const std::vector<Card>& newDeck, const std::vector<Card>& newHand, const std::vector<Card>& newDiscard) {
     deck = newDeck;
-    hand.clear();
-    discardPile.clear();
+    hand = newHand;
+    discardPile = newDiscard;
 }
 
 void Player::drawCards(int count) {

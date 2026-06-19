@@ -55,7 +55,7 @@ public:
     void initStartingDeck(bool forceAllCards = false);
     void shuffleDeck();
     void addCardToDeck(const Card& card);
-    void setDeck(const std::vector<Card>& newDeck);
+    void setDeckState(const std::vector<Card>& newDeck, const std::vector<Card>& newHand, const std::vector<Card>& newDiscard);
     void drawCards(int count);
     void discardHand();
     void playCard(int index);
