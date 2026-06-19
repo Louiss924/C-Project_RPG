@@ -23,6 +23,8 @@ private:
 public:
     Player(int hp = 80, int maxHp = 80, int sp = 3, int maxSp = 10);
 
+    static Card createCardByName(const std::string& name);
+
     // 狀態存取
     int getHp() const;
     int getMaxHp() const;
@@ -53,6 +55,7 @@ public:
     void initStartingDeck(bool forceAllCards = false);
     void shuffleDeck();
     void addCardToDeck(const Card& card);
+    void setDeck(const std::vector<Card>& newDeck);
     void drawCards(int count);
     void discardHand();
     void playCard(int index);

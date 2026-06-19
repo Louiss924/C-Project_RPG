@@ -11,6 +11,9 @@ private:
     int menuCursor; // 記錄主選單游標位置
     void displayMainMenu(); // 顯示主選單並處理輸入
     void displayInstructions(); // 顯示遊戲說明頁面
+    void saveGame(); // 儲存存檔
+    bool loadGame(); // 載入存檔
+    bool hasSaveFile() const; // 檢查是否存在存檔
     void displayLevelStartMessage();
     void displayVictoryScreen();
     void displayDefeatScreen();

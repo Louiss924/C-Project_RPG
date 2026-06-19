@@ -157,6 +157,12 @@ void Player::addCardToDeck(const Card& card) {
     deck.push_back(card);
 }
 
+void Player::setDeck(const std::vector<Card>& newDeck) {
+    deck = newDeck;
+    hand.clear();
+    discardPile.clear();
+}
+
 void Player::drawCards(int count) {
     for (int i = 0; i < count; ++i) {
         if (deck.empty()) {
@@ -193,4 +199,30 @@ const std::vector<Card>& Player::getDiscardPile() const { return discardPile; }
 void Player::resetTurnState() {
     armor = 0;
     isCountering = false;
+}
+
+Card Player::createCardByName(const std::string& name) {
+    if (name == "重擊") {
+        return Card("重擊", 1, CardEffectType::DAMAGE, 8, "造成 8 點傷害");
+    } else if (name == "防禦") {
+        return Card("防禦", 1, CardEffectType::DEFEND, 6, "獲得 6 點護盾");
+    } else if (name == "護盾") {
+        return Card("護盾", 1, CardEffectType::DEFEND, 5, "獲得 5 點護盾（無法防住真實傷害）");
+    } else if (name == "治療術") {
+        return Card("治療術", 2, CardEffectType::HEAL, 10, "回復 10 點生命值");
+    } else if (name == "反擊姿態") {
+        return Card("反擊姿態", 2, CardEffectType::COUNTER, 50, "反擊狀態：受到傷害時反彈 50% 給怪物");
+    } else if (name == "生命繁茂") {
+        return Card("生命繁茂", 2, CardEffectType::MAX_HP_UP, 15, "最大生命值與當前生命值提升 15 點");
+    } else if (name == "電擊術") {
+        return Card("電擊術", 3, CardEffectType::STUN, 1, "電暈怪物，使其下一回合眩暈無法行動");
+    } else if (name == "迅捷連擊") {
+        return Card("迅捷連擊", 2, CardEffectType::MULTI_DAMAGE, 4, "快速連擊 3 次，每次造成 4 點連擊傷害");
+    } else if (name == "貫穿擊") {
+        return Card("貫穿擊", 1, CardEffectType::TRUE_DAMAGE, 8, "造成 8 點真實傷害（無視怪物護盾）");
+    } else if (name == "破甲重錘") {
+        return Card("破甲重錘", 2, CardEffectType::BREAK_ARMOR_DAMAGE, 7, "粉碎怪物全部護盾，並造成 7 點傷害");
+    }
+    // 預設防錯回傳
+    return Card("重擊", 1, CardEffectType::DAMAGE, 8, "造成 8 點傷害");
 }

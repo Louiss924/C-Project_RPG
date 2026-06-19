@@ -1,6 +1,8 @@
 #include "Game.h"
 #include "Battle.h"
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include <conio.h>
 #include <chrono>
 #include <random>
@@ -23,6 +25,7 @@ void Game::displayLevelStartMessage() {
 }
 
 void Game::displayDefeatScreen() {
+    remove("save.dat");
     system("cls");
     std::cout << "\n\n\n";
     std::cout << "      💀💀💀💀💀💀💀💀💀💀💀💀💀💀💀💀💀💀" << std::endl;
@@ -37,6 +40,7 @@ void Game::displayDefeatScreen() {
 }
 
 void Game::displayVictoryScreen() {
+    remove("save.dat");
     system("cls");
     std::cout << "\n\n\n";
     std::cout << "      🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉" << std::endl;
@@ -55,15 +59,32 @@ void Game::run() {
     bool inMenu = true;
     while (inMenu) {
         displayMainMenu();
+        bool hasSave = hasSaveFile();
+        
         if (menuCursor == 0) {
+            // 開始冒險
             inMenu = false;
-            // 清除剩餘的鍵盤輸入，避免 Enter 連跳
             while (_kbhit()) {
                 _getch();
             }
-        } else if (menuCursor == 1) {
+        } else if (hasSave && menuCursor == 1) {
+            // 繼續冒險 (載入存檔)
+            if (loadGame()) {
+                inMenu = false;
+                std::cout << "\n        🎉 存檔載入成功！即將繼續冒險..." << std::endl;
+                Sleep(800);
+                while (_kbhit()) {
+                    _getch();
+                }
+            } else {
+                std::cout << "\n        ❌ 存檔已損毀或載入失敗！請按任意鍵返回..." << std::endl;
+                _getch();
+            }
+        } else if ((hasSave && menuCursor == 2) || (!hasSave && menuCursor == 1)) {
+            // 遊戲說明
             displayInstructions();
-        } else if (menuCursor == 2) {
+        } else if ((hasSave && menuCursor == 3) || (!hasSave && menuCursor == 2)) {
+            // 離開遊戲
             system("cls");
             std::cout << "\n\n        感謝您的遊玩！再見！\n\n";
             exit(0);
@@ -197,6 +218,7 @@ void Game::run() {
                 player.setSp(3);
                 currentLevel++;
                 currentRound = 1;
+                saveGame();
             }
         } else {
             if (currentRound == 2) {
@@ -208,6 +230,7 @@ void Game::run() {
                 
                 draftCardsPhase();
                 currentRound++;
+                saveGame();
             } else {
                 std::cout << std::endl;
                 std::cout << "⚔️ 關卡 " << currentLevel << "-" << currentRound << " 勝利！" << std::endl;
@@ -216,6 +239,7 @@ void Game::run() {
                 _getch();
                 
                 currentRound++;
+                saveGame();
             }
         }
     }
@@ -350,8 +374,31 @@ void Game::displayStoryDialogue(const std::string& character, const std::vector<
 }
 
 void Game::displayMainMenu() {
+    bool hasSave = hasSaveFile();
+    std::vector<std::string> options;
+    if (hasSave) {
+        options = { "開始冒險", "繼續冒險", "遊戲說明", "離開遊戲" };
+    } else {
+        options = { "開始冒險", "遊戲說明", "離開遊戲" };
+        if (menuCursor >= 3) {
+            menuCursor = 0;
+        }
+    }
+    
+    int totalOptions = options.size();
     bool selected = false;
     while (!selected) {
+        hasSave = hasSaveFile();
+        if (hasSave) {
+            options = { "開始冒險", "繼續冒險", "遊戲說明", "離開遊戲" };
+        } else {
+            options = { "開始冒險", "遊戲說明", "離開遊戲" };
+            if (menuCursor >= 3) {
+                menuCursor = 0;
+            }
+        }
+        totalOptions = options.size();
+
         system("cls");
         std::cout << "\n\n";
         std::cout << "      ========================================================" << std::endl;
@@ -359,8 +406,7 @@ void Game::displayMainMenu() {
         std::cout << "      ========================================================" << std::endl;
         std::cout << "\n\n";
         
-        std::vector<std::string> options = { "開始冒險", "遊戲說明", "離開遊戲" };
-        for (int i = 0; i < 3; ++i) {
+        for (int i = 0; i < totalOptions; ++i) {
             if (menuCursor == i) {
                 std::cout << "                  > [ " << options[i] << " ] <" << std::endl;
             } else {
@@ -375,9 +421,9 @@ void Game::displayMainMenu() {
         if (ch == 0 || ch == 224) {
             int next_ch = _getch();
             if (next_ch == 72) { // Up arrow
-                menuCursor = (menuCursor - 1 + 3) % 3;
+                menuCursor = (menuCursor - 1 + totalOptions) % totalOptions;
             } else if (next_ch == 80) { // Down arrow
-                menuCursor = (menuCursor + 1) % 3;
+                menuCursor = (menuCursor + 1) % totalOptions;
             }
         } else if (ch == 13 || ch == 10) { // Enter
             selected = true;
@@ -419,4 +465,83 @@ void Game::displayInstructions() {
     std::cout << "      ==========================================================" << std::endl;
     std::cout << "                         ( 按任意鍵返回主選單 )" << std::endl;
     _getch();
+}
+
+void Game::saveGame() {
+    std::ofstream file("save.dat");
+    if (!file.is_open()) {
+        std::cerr << "⚠️ 無法寫入存檔檔案！" << std::endl;
+        return;
+    }
+    
+    // 第一行：關卡 回合 當前血量 最大血量上限
+    file << currentLevel << " " << currentRound << " " << player.getHp() << " " << player.getMaxHp() << "\n";
+    
+    // 第二行：牌組卡牌（以逗號分隔）
+    const auto& deck = player.getDeck();
+    for (size_t i = 0; i < deck.size(); ++i) {
+        file << deck[i].getName();
+        if (i < deck.size() - 1) {
+            file << ",";
+        }
+    }
+    file << "\n";
+    file.close();
+}
+
+bool Game::loadGame() {
+    std::ifstream file("save.dat");
+    if (!file.is_open()) {
+        return false;
+    }
+    
+    std::string firstLine;
+    if (!std::getline(file, firstLine)) {
+        file.close();
+        return false;
+    }
+    
+    std::stringstream ss(firstLine);
+    int lvl, rnd, hpVal, maxHpVal;
+    if (!(ss >> lvl >> rnd >> hpVal >> maxHpVal)) {
+        file.close();
+        return false;
+    }
+    
+    // 簡單的範圍防錯檢查
+    if (lvl < 1 || lvl > 3 || rnd < 1 || rnd > 3 || hpVal < 0 || maxHpVal <= 0) {
+        file.close();
+        return false;
+    }
+    
+    std::string secondLine;
+    if (!std::getline(file, secondLine)) {
+        file.close();
+        return false;
+    }
+    
+    std::vector<Card> loadedDeck;
+    std::stringstream ssCards(secondLine);
+    std::string cardName;
+    while (std::getline(ssCards, cardName, ',')) {
+        if (!cardName.empty()) {
+            loadedDeck.push_back(Player::createCardByName(cardName));
+        }
+    }
+    
+    file.close();
+    
+    // 載入成功，更新遊戲與玩家狀態
+    currentLevel = lvl;
+    currentRound = rnd;
+    player.setMaxHp(maxHpVal);
+    player.setHp(hpVal);
+    player.setDeck(loadedDeck);
+    
+    return true;
+}
+
+bool Game::hasSaveFile() const {
+    std::ifstream file("save.dat");
+    return file.good();
 }
