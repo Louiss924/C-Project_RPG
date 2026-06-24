@@ -5,16 +5,13 @@
 #include <functional>
 #include <string>
 #include "Card.h"
+#include "Character.h"
 
-class Player {
+class Player : public Character {
 private:
-    int hp;
-    int maxHp;
     int sp;
     int maxSp;
-    int armor;
     bool isCountering;
-    bool isStunned;
 
     std::vector<Card> deck;
     std::vector<Card> hand;
@@ -26,20 +23,12 @@ public:
     static Card createCardByName(const std::string& name);
 
     // 狀態存取
-    int getHp() const;
-    int getMaxHp() const;
     int getSp() const;
     int getMaxSp() const;
-    int getArmor() const;
     bool getIsCountering() const;
-    bool getIsStunned() const;
 
-    void setHp(int hp);
-    void setMaxHp(int maxHp);
     void setSp(int sp);
-    void setArmor(int armor);
     void setIsCountering(bool state);
-    void setIsStunned(bool state);
 
     // 效果修改器
     void gainSP(int amount);
@@ -47,9 +36,6 @@ public:
     void gainArmor(int amount);
     void heal(int amount);
     void gainMaxHP(int amount);
-
-    // 受到傷害 (包含護盾扣減與血條逐點扣減動畫)
-    void takeDamage(int damage, bool isTrueDamage = false, std::function<void()> drawCallback = nullptr);
 
     // 卡牌管理
     void initStartingDeck(bool forceAllCards = false);
@@ -65,7 +51,7 @@ public:
     const std::vector<Card>& getDiscardPile() const;
 
     // 回合結束狀態重置 (例如護盾清零、反擊狀態重置)
-    void resetTurnState();
+    void resetTurnState() override;
 };
 
 #endif // PLAYER_H

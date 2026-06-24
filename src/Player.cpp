@@ -6,26 +6,11 @@
 #include <windows.h>
 
 Player::Player(int hp, int maxHp, int sp, int maxSp)
-    : hp(hp), maxHp(maxHp), sp(sp), maxSp(maxSp), armor(0), isCountering(false), isStunned(false) {}
+    : Character("勇者", hp, maxHp), sp(sp), maxSp(maxSp), isCountering(false) {}
 
-int Player::getHp() const { return hp; }
-int Player::getMaxHp() const { return maxHp; }
 int Player::getSp() const { return sp; }
 int Player::getMaxSp() const { return maxSp; }
-int Player::getArmor() const { return armor; }
 bool Player::getIsCountering() const { return isCountering; }
-bool Player::getIsStunned() const { return isStunned; }
-
-void Player::setHp(int newHp) {
-    hp = newHp;
-    if (hp > maxHp) hp = maxHp;
-    if (hp < 0) hp = 0;
-}
-
-void Player::setMaxHp(int newMaxHp) {
-    maxHp = newMaxHp;
-    if (hp > maxHp) hp = maxHp;
-}
 
 void Player::setSp(int newSp) {
     sp = newSp;
@@ -33,13 +18,7 @@ void Player::setSp(int newSp) {
     if (sp < 0) sp = 0;
 }
 
-void Player::setArmor(int newArmor) {
-    armor = newArmor;
-    if (armor < 0) armor = 0;
-}
-
 void Player::setIsCountering(bool state) { isCountering = state; }
-void Player::setIsStunned(bool state) { isStunned = state; }
 
 void Player::gainSP(int amount) {
     sp = std::min(sp + amount, maxSp);
@@ -64,37 +43,6 @@ void Player::heal(int amount) {
 void Player::gainMaxHP(int amount) {
     maxHp += amount;
     hp += amount;
-}
-
-void Player::takeDamage(int damage, bool isTrueDamage, std::function<void()> drawCallback) {
-    int actualDamage = damage;
-    if (!isTrueDamage && armor > 0) {
-        if (actualDamage <= armor) {
-            armor -= actualDamage;
-            actualDamage = 0;
-        } else {
-            actualDamage -= armor;
-            armor = 0;
-        }
-        if (drawCallback) {
-            drawCallback();
-            Sleep(80);
-        }
-    }
-
-    if (actualDamage > 0) {
-        for (int i = 0; i < actualDamage; ++i) {
-            if (hp > 0) {
-                hp--;
-                if (drawCallback) {
-                    drawCallback();
-                    Sleep(80);
-                }
-            } else {
-                break;
-            }
-        }
-    }
 }
 
 void Player::initStartingDeck(bool forceAllCards) {

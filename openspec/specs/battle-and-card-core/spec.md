@@ -89,3 +89,10 @@ The battle card system MUST support new offensive card effects including true da
 - **WHEN** the player plays the "Combo Strike" card
 - **THEN** the system MUST execute damage calculation and monster.takeDamage 3 times sequentially
 
+### Requirement: Refactor Player and Monster with Base Class
+The system SHALL organize Player and Monster entities under a common Character base class to share core attributes and methods.
+
+#### Scenario: Verify Common Base Class
+- **WHEN** the code compiles
+- **THEN** both Player and Monster classes inherit from Character and share the takeDamage implementation
+
