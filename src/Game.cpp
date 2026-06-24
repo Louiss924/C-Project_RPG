@@ -99,11 +99,11 @@ void Game::run() {
         if (currentLevel == 1) {
             if (currentRound == 1) {
                 monsterName = "溫和的史萊姆";
-                monsterHp = 25;
+                monsterHp = 20;
                 moves = {{"撞擊", 4, 0, "撞擊玩家"}, {"分裂準備", 0, 4, "分裂準備：蓄力並獲得 4 點護盾"}};
             } else if (currentRound == 2) {
                 monsterName = "哥布林斥候";
-                monsterHp = 40;
+                monsterHp = 30;
                 moves = {
                     {"飛刀", 6, 0, "向玩家投擲飛刀"},
                     {"格擋姿勢", 0, 6, "格擋：獲得 6 點護盾"},
@@ -112,7 +112,7 @@ void Game::run() {
                 };
             } else {
                 monsterName = "哥布林酋長 (第一關 Boss)";
-                monsterHp = 65;
+                monsterHp = 45;
                 moves = {
                     {"大棒重擊", 9, 0, "揮舞大棒重擊玩家"},
                     {"狂暴咆哮", 5, 5, "咆哮：造成 5 點傷害並獲得 5 點護盾"},
@@ -123,15 +123,15 @@ void Game::run() {
         } else {
             if (currentRound == 1) {
                 monsterName = "火山蜥蜴";
-                monsterHp = 70;
+                monsterHp = 50;
                 moves = {{"火球噴射", 11, 0, "噴射火球"}, {"熱能護盾", 0, 11, "凝聚熱能：獲得 11 點護盾"}};
             } else if (currentRound == 2) {
                 monsterName = "遠古岩石巨人";
-                monsterHp = 95;
+                monsterHp = 70;
                 moves = {{"巨石重擊", 14, 0, "砸下巨石"}, {"大地防護", 0, 15, "吸收大地之力：獲得 15 點護盾"}};
             } else {
                 monsterName = "烈焰巨龍 (最終 Boss)";
-                monsterHp = 140;
+                monsterHp = 95;
                 moves = {
                     {"毀滅龍息", 18, 0, "噴吐毀滅龍之吐息 (真實傷害！)", true},
                     {"龍鱗防壁", 5, 12, "龍之防壁：造成 5 點傷害並獲得 12 點護盾", false},
