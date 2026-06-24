@@ -2,17 +2,18 @@
 
 本文件提供專案的**類別關係圖 (UML Class Diagram)**與**系統架構流程圖 (System Architecture & Game Flow)**，協助您在專題報告、簡報與 Demo 中清晰展現 C++ 專案的物件導向結構與執行邏輯。
 
+為適應橫向簡報 (16:9) 與報告排版，類別圖已模組化拆分，流程圖已調整為由左至右之橫向展開版。
+
 ---
 
 ## 1. 類別關係圖 (UML Class Diagram)
 
-本圖展現了專案核心類別的繼承、關聯與聚合關係：
-- **繼承關係** (`Character` ➡️ `Player` / `Monster`) 展現 C++ 物件導向的多型與繼承。
-- **組合與聚合關係** (`Player` 包含多張 `Card`；`Monster` 包含多組 `MonsterMove`)。
-- **依賴與控制關係** (`Game` 驅動 `Battle` 與 `Player`；`Battle` 負責具體戰鬥邏輯的互動)。
+### 模組 1：角色繼承架構 (Character Inheritance)
+*本圖聚焦於專案核心的角色繼承關係，展現 C++ 物件導向的多型與繼承特色。*
 
 ```mermaid
 classDiagram
+    direction LR
     class Character {
         # string name
         # int hp
@@ -81,6 +82,44 @@ classDiagram
         + resetActionCount() void
     }
 
+    Character <|-- Player : 繼承 (Inheritance)
+    Character <|-- Monster : 繼承 (Inheritance)
+```
+
+### 模組 2：戰鬥與卡牌聚合關係 (Combat & Systems)
+*本圖展現了主程式、戰鬥引擎、卡牌與怪物的關係，展示組合 (Composition) 與依賴 (Dependency) 設計。*
+
+```mermaid
+classDiagram
+    direction LR
+    class Game {
+        - Player player
+        - int currentLevel
+        - int currentRound
+        - int menuCursor
+        - int totalElapsedSeconds
+        - bool defeatedLevel1
+        - time_point startTime
+        + Game()
+        + run() void
+        - saveGame() void
+        - loadGame() bool
+        - hasSaveFile() bool
+        - displayMainMenu() void
+        - selectStartingLevelPhase() void
+    }
+
+    class Battle {
+        - Player& player
+        - Monster& monster
+        - int currentLevel
+        + Battle(player, monster, currentLevel)
+        + start(isFirstRound) bool
+        - playerTurn() bool
+        - monsterTurn() void
+        - executeMonsterTurn() void
+    }
+
     class Card {
         - string name
         - int spCost
@@ -88,11 +127,6 @@ classDiagram
         - int value
         - string description
         + Card(name, spCost, effectType, value, description)
-        + getName() string
-        + getSpCost() int
-        + getEffectType() CardEffectType
-        + getValue() int
-        + getDescription() string
     }
 
     class MonsterMove {
@@ -107,106 +141,66 @@ classDiagram
         + MonsterMove(name, damage, armorGain, description, isTrueDamage, hits, drainSp, stunsPlayer)
     }
 
-    class Battle {
-        - Player& player
-        - Monster& monster
-        - int currentLevel
-        + Battle(player, monster, currentLevel)
-        + start(isFirstRound) bool
-        - playerTurn() bool
-        - monsterTurn() void
-        - executeMonsterTurn() void
-        - displayBattleState() void
-        - displayLogs() void
-    }
-
-    class Game {
-        - Player player
-        - int currentLevel
-        - int currentRound
-        - int menuCursor
-        - int totalElapsedSeconds
-        - bool defeatedLevel1
-        - time_point startTime
-        - displayMainMenu() void
-        - displayInstructions() void
-        - saveGame() void
-        - loadGame() bool
-        - hasSaveFile() bool
-        - displayLevelStartMessage() void
-        - displayVictoryScreen() void
-        - displayDefeatScreen() void
-        - draftCardsPhase() void
-        - playBossWarningAnimation() void
-        - displayStoryDialogue() void
-        - selectStartingLevelPhase() void
-        + Game()
-        + run() void
-    }
-
-    Character <|-- Player : 繼承 (Inheritance)
-    Character <|-- Monster : 繼承 (Inheritance)
-    Player "1" *-- "*" Card : 組合關係 (Composition)
-    Monster "1" *-- "*" MonsterMove : 組合關係 (Composition)
-    Game "1" *-- "1" Player : 控制與擁有 (Owns)
+    Game ..> Battle : 實體化與驅動 (Creates & Runs)
     Battle --> Player : 參照 (References)
     Battle --> Monster : 參照 (References)
-    Game ..> Battle : 實體化與驅動 (Creates & Runs)
+    Player "1" *-- "*" Card : 組合關係 (Composition)
+    Monster "1" *-- "*" MonsterMove : 組合關係 (Composition)
 ```
 
 ---
 
 ## 2. 系統架構與遊戲流程圖 (System Architecture & Game Flow)
 
-本圖說明了整個程式從啟動 (`main.cpp`) 到主選單、存取檔管理、戰鬥迴圈（Player/Monster 回合交替）及關卡推進的執行脈絡：
+本圖以**由左至右 (LR) 橫向展開**說明整個程式的執行脈絡，完美適應簡報的 16:9 版面：
 
 ```mermaid
-flowchart TD
-    Start([主程式啟動 main.cpp]) --> InitConsole[初始化控制台: 設定 UTF-8 編碼與 VT 處理以支援 ANSI 顏色及視窗最大化]
-    InitConsole --> MainMenu{主選單 Game::displayMainMenu}
+flowchart LR
+    Start([主程式啟動 main.cpp]) --> InitConsole[初始化控制台] --> MainMenu{主選單}
 
-    MainMenu -->|開始冒險| SelectLvl[選擇起始關卡: 第一關/第二關]
-    MainMenu -->|繼續冒險| LoadFile[載入存檔 Game::loadGame]
-    MainMenu -->|遊戲說明| ShowInst[顯示說明面頁]
+    MainMenu -->|開始冒險| SelectLvl[選擇起始關卡]
+    MainMenu -->|繼續冒險| LoadFile[載入存檔]
+    MainMenu -->|遊戲說明| ShowInst[顯示說明頁]
     MainMenu -->|離開遊戲| ExitGame([結束程式])
 
     ShowInst --> MainMenu
-    SelectLvl --> InitPlayer[初始化玩家: 預設 HP 80, SP 7, 載入初始牌組]
+    SelectLvl --> InitPlayer[初始化玩家與牌組]
     LoadFile -->|載入成功| StartLevelLoop
     LoadFile -->|載入失敗| MainMenu
-    InitPlayer --> StartLevelLoop[進入關卡大迴圈 Game::run]
+    InitPlayer --> StartLevelLoop[進入關卡大迴圈]
 
     StartLevelLoop --> LevelCond{當前關卡 <= 2 ?}
-    LevelCond -->|是| BattleStart[生成對應關卡的魔物與 HP]
-    LevelCond -->|否| ShowWin[通關慶典: 遊戲通關，傳奇勇者獲勝！ displayVictoryScreen]
+    LevelCond -->|是| BattleStart[生成對應魔物]
+    LevelCond -->|否| ShowWin[通關慶典 displayVictoryScreen]
     ShowWin --> DeleteSaveWin[刪除存檔 save.dat] --> ReturnMenu([返回主選單])
 
-    BattleStart --> AutoSave[自動存檔 Game::saveGame]
+    BattleStart --> AutoSave[自動存檔 saveGame]
     AutoSave --> PlayBattle[啟動戰鬥迴圈 Battle::start]
 
-    PlayBattle --> CheckStun{怪物是否被眩暈?}
-    CheckStun -->|是| PlayerTurn[玩家回合: 抽牌、顯示手牌顏色標籤與方向鍵選卡、出牌]
-    CheckStun -->|否| MonsterTurn[怪物回合: 根據滾動意圖造成傷害/護盾]
+    subgraph "戰鬥迴圈 (Battle Loop)"
+        PlayBattle --> CheckStun{是否被眩暈?}
+        CheckStun -->|是| PlayerTurn[玩家回合: 選卡/出牌]
+        CheckStun -->|否| MonsterTurn[怪物回合: 依意圖行動]
+    end
 
-    PlayerTurn --> PlayBattle
-    MonsterTurn --> PlayBattle
+    PlayerTurn --> CheckHp
+    MonsterTurn --> CheckHp
 
-    PlayBattle --> CheckHp{雙方 HP 狀態}
-    CheckHp -->|玩家 HP <= 0| ShowDefeat[戰鬥失敗: 顯示勇者戰死畫面 displayDefeatScreen]
-    CheckHp -->|怪物 HP <= 0| BattleWin[戰鬥勝利]
-    CheckHp -->|皆活著| CheckStun
+    CheckHp{雙方 HP 狀態} -->|玩家死亡| ShowDefeat[戰鬥失敗 displayDefeatScreen]
+    CheckHp -->|怪物死亡| BattleWin[戰鬥勝利]
+    CheckHp -->|皆存活| PlayBattle
 
     ShowDefeat --> DeleteSaveDefeat[刪除存檔 save.dat] --> ReturnMenu
 
     BattleWin --> RoundCond{是否為 Boss 戰 Round 3 ?}
     
-    RoundCond -->|否| DraftCards[進入卡牌增抽階段 draftCardsPhase]
+    RoundCond -->|否| DraftCards[卡牌增抽階段]
     DraftCards --> SaveNextRound[儲存下一回合存檔]
-    SaveNextRound --> AdvanceRound[Round 遞增 1] --> StartLevelLoop
+    SaveNextRound --> AdvanceRound[Round 遞增] --> StartLevelLoop
 
     RoundCond -->|是| LevelCheck{是否為第二關 Level 2?}
-    LevelCheck -->|否| GodGuidance[眾神的指引: 選擇隨機或固定傷害加成]
+    LevelCheck -->|否| GodGuidance[眾神的指引選擇]
     GodGuidance --> SaveNextLvl[儲存新關卡存檔]
-    SaveNextLvl --> AdvanceLevel[Level 遞增 1, Round 重置為 1] --> StartLevelLoop
+    SaveNextLvl --> AdvanceLevel[Level 遞增, Round重置] --> StartLevelLoop
     LevelCheck -->|是| ShowWin
 ```

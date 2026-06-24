@@ -1,4 +1,8 @@
+%% ==========================================
+%% 模組 1：角色繼承架構 (Character Inheritance)
+%% ==========================================
 classDiagram
+    direction LR
     class Character {
         # string name
         # int hp
@@ -67,6 +71,42 @@ classDiagram
         + resetActionCount() void
     }
 
+    Character <|-- Player : 繼承 (Inheritance)
+    Character <|-- Monster : 繼承 (Inheritance)
+
+%% ==========================================
+%% 模組 2：戰鬥與卡牌聚合關係 (Combat & Systems)
+%% ==========================================
+classDiagram
+    direction LR
+    class Game {
+        - Player player
+        - int currentLevel
+        - int currentRound
+        - int menuCursor
+        - int totalElapsedSeconds
+        - bool defeatedLevel1
+        - time_point startTime
+        + Game()
+        + run() void
+        - saveGame() void
+        - loadGame() bool
+        - hasSaveFile() bool
+        - displayMainMenu() void
+        - selectStartingLevelPhase() void
+    }
+
+    class Battle {
+        - Player& player
+        - Monster& monster
+        - int currentLevel
+        + Battle(player, monster, currentLevel)
+        + start(isFirstRound) bool
+        - playerTurn() bool
+        - monsterTurn() void
+        - executeMonsterTurn() void
+    }
+
     class Card {
         - string name
         - int spCost
@@ -74,11 +114,6 @@ classDiagram
         - int value
         - string description
         + Card(name, spCost, effectType, value, description)
-        + getName() string
-        + getSpCost() int
-        + getEffectType() CardEffectType
-        + getValue() int
-        + getDescription() string
     }
 
     class MonsterMove {
@@ -93,48 +128,8 @@ classDiagram
         + MonsterMove(name, damage, armorGain, description, isTrueDamage, hits, drainSp, stunsPlayer)
     }
 
-    class Battle {
-        - Player& player
-        - Monster& monster
-        - int currentLevel
-        + Battle(player, monster, currentLevel)
-        + start(isFirstRound) bool
-        - playerTurn() bool
-        - monsterTurn() void
-        - executeMonsterTurn() void
-        - displayBattleState() void
-        - displayLogs() void
-    }
-
-    class Game {
-        - Player player
-        - int currentLevel
-        - int currentRound
-        - int menuCursor
-        - int totalElapsedSeconds
-        - bool defeatedLevel1
-        - time_point startTime
-        - displayMainMenu() void
-        - displayInstructions() void
-        - saveGame() void
-        - loadGame() bool
-        - hasSaveFile() bool
-        - displayLevelStartMessage() void
-        - displayVictoryScreen() void
-        - displayDefeatScreen() void
-        - draftCardsPhase() void
-        - playBossWarningAnimation() void
-        - displayStoryDialogue() void
-        - selectStartingLevelPhase() void
-        + Game()
-        + run() void
-    }
-
-    Character <|-- Player : 繼承 (Inheritance)
-    Character <|-- Monster : 繼承 (Inheritance)
-    Player "1" *-- "*" Card : 組合關係 (Composition)
-    Monster "1" *-- "*" MonsterMove : 組合關係 (Composition)
-    Game "1" *-- "1" Player : 控制與擁有 (Owns)
+    Game ..> Battle : 實體化與驅動 (Creates & Runs)
     Battle --> Player : 參照 (References)
     Battle --> Monster : 參照 (References)
-    Game ..> Battle : 實體化與驅動 (Creates & Runs)
+    Player "1" *-- "*" Card : 組合關係 (Composition)
+    Monster "1" *-- "*" MonsterMove : 組合關係 (Composition)
