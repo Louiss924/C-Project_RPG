@@ -63,10 +63,8 @@ void Game::run() {
         
         if (menuCursor == 0) {
             // 開始冒險
+            selectStartingLevelPhase();
             inMenu = false;
-            while (_kbhit()) {
-                _getch();
-            }
         } else if (hasSave && menuCursor == 1) {
             // 繼續冒險 (載入存檔)
             if (loadGame()) {
@@ -568,4 +566,58 @@ bool Game::loadGame() {
 bool Game::hasSaveFile() const {
     std::ifstream file("save.dat");
     return file.good();
+}
+
+void Game::selectStartingLevelPhase() {
+    // 進入前先清除鍵盤快取
+    while (_kbhit()) {
+        _getch();
+    }
+
+    int cursor = 0;
+    const int totalOptions = 2;
+    bool selected = false;
+
+    while (!selected) {
+        system("cls");
+        std::cout << "\n\n";
+        std::cout << "      ========================================================" << std::endl;
+        std::cout << "                   🎯 選擇起始關卡 (Select Level) 🎯" << std::endl;
+        std::cout << "      ========================================================" << std::endl;
+        std::cout << "\n\n";
+
+        if (cursor == 0) {
+            std::cout << "                  > [ 第一關：哥布林關卡 (Level 1) ] <" << std::endl;
+            std::cout << "\n";
+            std::cout << "                    [ 第二關：火山巨龍關卡 (Level 2) ]  " << std::endl;
+        } else {
+            std::cout << "                    [ 第一關：哥布林關卡 (Level 1) ]  " << std::endl;
+            std::cout << "\n";
+            std::cout << "                  > [ 第二關：火山巨龍關卡 (Level 2) ] <" << std::endl;
+        }
+
+        std::cout << "\n\n";
+        std::cout << "      ========================================================" << std::endl;
+        std::cout << "           (使用 ↑/↓ 方向鍵移動游標，Enter 鍵確認選擇)" << std::endl;
+
+        int ch = _getch();
+        if (ch == 0 || ch == 224) {
+            int next_ch = _getch();
+            if (next_ch == 72) { // Up
+                cursor = (cursor - 1 + totalOptions) % totalOptions;
+            } else if (next_ch == 80) { // Down
+                cursor = (cursor + 1) % totalOptions;
+            }
+        } else if (ch == 13 || ch == 10) { // Enter
+            selected = true;
+        }
+    }
+
+    currentLevel = cursor + 1;
+    currentRound = 1;
+
+    // 完成後再清除一次鍵盤快取，避免 Enter 影響下一階段
+    while (_kbhit()) {
+        _getch();
+    }
 }
