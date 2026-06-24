@@ -2,6 +2,7 @@
 #define GAME_H
 
 #include "Player.h"
+#include <chrono>
 
 class Game {
 private:
@@ -9,6 +10,9 @@ private:
     int currentLevel;
     int currentRound;
     int menuCursor; // 記錄主選單游標位置
+    int totalElapsedSeconds;
+    bool defeatedLevel1;
+    std::chrono::steady_clock::time_point startTime;
     void displayMainMenu(); // 顯示主選單並處理輸入
     void displayInstructions(); // 顯示遊戲說明頁面
     void saveGame(); // 儲存存檔
@@ -20,6 +24,7 @@ private:
     void draftCardsPhase();
     void playBossWarningAnimation();
     void displayStoryDialogue(const std::string& character, const std::vector<std::string>& lines);
+    void displayStoryDialogueWithChoice(const std::string& character, const std::vector<std::string>& lines, bool& choiceOut);
     void selectStartingLevelPhase();
 public:
     Game();

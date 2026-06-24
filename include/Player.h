@@ -12,13 +12,23 @@ private:
     int sp;
     int maxSp;
     bool isCountering;
+    int totalTurns;
+    bool acceptedGodsGuidance;
 
     std::vector<Card> deck;
     std::vector<Card> hand;
     std::vector<Card> discardPile;
 
+    void sortHand();
+
 public:
-    Player(int hp = 80, int maxHp = 80, int sp = 7, int maxSp = 10);
+    Player(int hp = 80, int maxHp = 80, int sp = 7, int maxSp = 15);
+    
+    int getTotalTurns() const { return totalTurns; }
+    void setTotalTurns(int t) { totalTurns = t; }
+    void incrementTotalTurns() { totalTurns++; }
+    bool getAcceptedGodsGuidance() const { return acceptedGodsGuidance; }
+    void setAcceptedGodsGuidance(bool state) { acceptedGodsGuidance = state; }
 
     static Card createCardByName(const std::string& name);
 
@@ -42,7 +52,7 @@ public:
     void shuffleDeck();
     void addCardToDeck(const Card& card);
     void setDeckState(const std::vector<Card>& newDeck, const std::vector<Card>& newHand, const std::vector<Card>& newDiscard);
-    void drawCards(int count);
+    std::vector<Card> drawCards(int count);
     void discardHand();
     void playCard(int index);
     

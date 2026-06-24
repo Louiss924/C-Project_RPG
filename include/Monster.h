@@ -24,6 +24,7 @@ class Monster : public Character {
 private:
     std::vector<MonsterMove> moves;
     MonsterMove nextMove;
+    int actionCount;
 
 public:
     Monster(std::string name, int hp, int maxHp, const std::vector<MonsterMove>& moves);
@@ -32,6 +33,10 @@ public:
     
     // 隨機決定下一回合意圖
     void rollIntent();
+
+    void incrementActionCount() { actionCount++; }
+    int getActionCount() const { return actionCount; }
+    void resetActionCount() { actionCount = 0; }
 };
 
 #endif // MONSTER_H

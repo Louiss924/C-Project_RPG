@@ -3,6 +3,10 @@
 #include <cstdlib>
 #include <windows.h>
 
+#ifndef ENABLE_VIRTUAL_TERMINAL_PROCESSING
+#define ENABLE_VIRTUAL_TERMINAL_PROCESSING 0x0004
+#endif
+
 int main() {
     // 強制呼叫 system("chcp 65001 > nul") 解決 Windows 控制台中文與圖形字元亂碼
     system("chcp 65001 > nul");
@@ -25,8 +29,19 @@ int main() {
         SendMessage(hwnd, WM_SYSCOMMAND, SC_MAXIMIZE, 0);
     }
     
+    // 5. 啟用虛擬終端機處理 (Virtual Terminal Processing) 以支援 ANSI 顏色
+    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    if (hOut != INVALID_HANDLE_VALUE) {
+        DWORD dwMode = 0;
+        if (GetConsoleMode(hOut, &dwMode)) {
+            dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+            SetConsoleMode(hOut, dwMode);
+        }
+    }
+    
     Game game;
     game.run();
     
     return 0;
 }
+

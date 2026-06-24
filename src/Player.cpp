@@ -6,7 +6,7 @@
 #include <windows.h>
 
 Player::Player(int hp, int maxHp, int sp, int maxSp)
-    : Character("勇者", hp, maxHp), sp(sp), maxSp(maxSp), isCountering(false) {}
+    : Character("勇者", hp, maxHp), sp(sp), maxSp(maxSp), isCountering(false), totalTurns(0), acceptedGodsGuidance(true) {}
 
 int Player::getSp() const { return sp; }
 int Player::getMaxSp() const { return maxSp; }
@@ -109,9 +109,11 @@ void Player::setDeckState(const std::vector<Card>& newDeck, const std::vector<Ca
     deck = newDeck;
     hand = newHand;
     discardPile = newDiscard;
+    sortHand();
 }
 
-void Player::drawCards(int count) {
+std::vector<Card> Player::drawCards(int count) {
+    std::vector<Card> drawn;
     for (int i = 0; i < count; ++i) {
         if (deck.empty()) {
             if (discardPile.empty()) {
@@ -121,9 +123,12 @@ void Player::drawCards(int count) {
             discardPile.clear();
             shuffleDeck();
         }
+        drawn.push_back(deck.back());
         hand.push_back(deck.back());
         deck.pop_back();
     }
+    sortHand();
+    return drawn;
 }
 
 void Player::discardHand() {
@@ -137,6 +142,7 @@ void Player::playCard(int index) {
     if (index >= 0 && index < static_cast<int>(hand.size())) {
         discardPile.push_back(hand[index]);
         hand.erase(hand.begin() + index);
+        sortHand();
     }
 }
 
@@ -174,3 +180,29 @@ Card Player::createCardByName(const std::string& name) {
     // 預設防錯回傳
     return Card("重擊", 1, CardEffectType::DAMAGE, 8, "造成 8 點傷害");
 }
+
+void Player::sortHand() {
+    auto getTypePriority = [](CardEffectType type) -> int {
+        if (type == CardEffectType::DAMAGE || type == CardEffectType::TRUE_DAMAGE || 
+            type == CardEffectType::BREAK_ARMOR_DAMAGE || type == CardEffectType::MULTI_DAMAGE) {
+            return 1; // 攻擊型
+        } else if (type == CardEffectType::DEFEND || type == CardEffectType::COUNTER) {
+            return 2; // 防禦型
+        } else {
+            return 3; // 輔助型
+        }
+    };
+
+    std::sort(hand.begin(), hand.end(), [&](const Card& a, const Card& b) {
+        int prioA = getTypePriority(a.getEffectType());
+        int prioB = getTypePriority(b.getEffectType());
+        if (prioA != prioB) {
+            return prioA < prioB;
+        }
+        if (a.getSpCost() != b.getSpCost()) {
+            return a.getSpCost() < b.getSpCost();
+        }
+        return a.getName() < b.getName();
+    });
+}
+
