@@ -149,25 +149,16 @@ void Battle::drawUI() {
     
     // 4. 手牌與動作選擇區
     if (isPlayerTurn && !isBattleOver) {
-        std::cout << "【手牌與動作】(使用 ↑/↓ 方向鍵移動，Enter 鍵確認出牌)" << std::endl;
+        std::cout << "【手牌與動作】(使用方向鍵移動，Enter 鍵確認出牌/行動)" << std::endl;
         
-        // Option 0: 普通攻擊
-        if (cursorIndex == 0) {
-            std::cout << " > [普通攻擊] (消耗: 0 SP) | 造成 5 點傷害，回復 1 點 SP" << std::endl;
-        } else {
-            std::cout << "   [普通攻擊] (消耗: 0 SP) | 造成 5 點傷害，回復 1 點 SP" << std::endl;
-        }
-        
-        // Option 1..N: 手牌 (橫向並排 ASCII 卡牌框，每行最多 5 張)
         const auto& hand = player.getHand();
-        int totalHand = hand.size();
-        for (int startIdx = 0; startIdx < totalHand; startIdx += 5) {
-            int endIdx = std::min(startIdx + 5, totalHand);
+        int totalOptions = hand.size() + 1; // 普通攻擊 + 手牌
+        for (int startIdx = 0; startIdx < totalOptions; startIdx += 5) {
+            int endIdx = std::min(startIdx + 5, totalOptions);
             
             // 第一行：頂框
             for (int i = startIdx; i < endIdx; ++i) {
-                int optionId = i + 1;
-                bool isSelected = (cursorIndex == optionId);
+                bool isSelected = (cursorIndex == i);
                 if (isSelected) {
                     std::cout << "*==============*";
                 } else {
@@ -179,10 +170,14 @@ void Battle::drawUI() {
             
             // 第二行：卡牌名稱
             for (int i = startIdx; i < endIdx; ++i) {
-                int optionId = i + 1;
-                bool isSelected = (cursorIndex == optionId);
-                const auto& card = hand[i];
-                std::string nameStr = isSelected ? ("* " + card.getName() + " *") : card.getName();
+                bool isSelected = (cursorIndex == i);
+                std::string nameStr;
+                if (i == 0) {
+                    nameStr = isSelected ? "* 普通攻擊 *" : "普通攻擊";
+                } else {
+                    const auto& card = hand[i - 1];
+                    nameStr = isSelected ? ("* " + card.getName() + " *") : card.getName();
+                }
                 std::string paddedName = padUTF8Text(nameStr, 14);
                 if (isSelected) {
                     std::cout << "*" << paddedName << "*";
@@ -193,12 +188,16 @@ void Battle::drawUI() {
             }
             std::cout << std::endl;
             
-            // 第三行：能量消耗
+            // 第三行：能量消耗/效果
             for (int i = startIdx; i < endIdx; ++i) {
-                int optionId = i + 1;
-                bool isSelected = (cursorIndex == optionId);
-                const auto& card = hand[i];
-                std::string spStr = "消耗: " + std::to_string(card.getSpCost()) + " SP";
+                bool isSelected = (cursorIndex == i);
+                std::string spStr;
+                if (i == 0) {
+                    spStr = "回復: 1 SP";
+                } else {
+                    const auto& card = hand[i - 1];
+                    spStr = "消耗: " + std::to_string(card.getSpCost()) + " SP";
+                }
                 std::string paddedSp = padUTF8Text(spStr, 14);
                 if (isSelected) {
                     std::cout << "*" << paddedSp << "*";
@@ -211,10 +210,14 @@ void Battle::drawUI() {
             
             // 第四行：效果描述
             for (int i = startIdx; i < endIdx; ++i) {
-                int optionId = i + 1;
-                bool isSelected = (cursorIndex == optionId);
-                const auto& card = hand[i];
-                std::string desc = getCardShortDesc(card.getName());
+                bool isSelected = (cursorIndex == i);
+                std::string desc;
+                if (i == 0) {
+                    desc = "造成 5 點傷害";
+                } else {
+                    const auto& card = hand[i - 1];
+                    desc = getCardShortDesc(card.getName());
+                }
                 std::string paddedDesc = padUTF8Text(desc, 14);
                 if (isSelected) {
                     std::cout << "*" << paddedDesc << "*";
@@ -227,8 +230,7 @@ void Battle::drawUI() {
             
             // 第五行：底框
             for (int i = startIdx; i < endIdx; ++i) {
-                int optionId = i + 1;
-                bool isSelected = (cursorIndex == optionId);
+                bool isSelected = (cursorIndex == i);
                 if (isSelected) {
                     std::cout << "*==============*";
                 } else {
@@ -262,13 +264,13 @@ void Battle::handleInput() {
     int ch = _getch();
     if (ch == 0 || ch == 224) {
         int next_ch = _getch();
-        if (next_ch == 72) { // 方向鍵上
+        if (next_ch == 72 || next_ch == 75) { // 方向鍵上 或 左
             cursorIndex--;
             if (cursorIndex < 0) {
                 cursorIndex = player.getHand().size();
             }
             drawUI();
-        } else if (next_ch == 80) { // 方向鍵下
+        } else if (next_ch == 80 || next_ch == 77) { // 方向鍵下 或 右
             cursorIndex++;
             if (cursorIndex > static_cast<int>(player.getHand().size())) {
                 cursorIndex = 0;
