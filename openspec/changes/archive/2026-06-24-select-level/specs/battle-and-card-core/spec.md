@@ -1,7 +1,7 @@
 ## ADDED Requirements
 
 ### Requirement: Starting Level Selection Menu
-當玩家在主選單點擊「開始冒險」時，系統必須顯示一個關卡選擇畫面，供玩家選取要挑戰的起始大關。
+當玩家在主選單點擊「開始冒險」時，系統 MUST 顯示一個關卡選擇畫面，供玩家選取要挑戰的起始大關。
 
 #### Scenario: Level 1 Selection
 - **WHEN** 玩家進入關卡選擇選單，使用方向鍵選擇 Level 1 並點擊 Enter 鍵確認
