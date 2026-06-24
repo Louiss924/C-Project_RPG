@@ -1,0 +1,48 @@
+flowchart TD
+    Start([主程式啟動 main.cpp]) --> InitConsole[初始化控制台: 設定 UTF-8 編碼與 VT 處理以支援 ANSI 顏色及視窗最大化]
+    InitConsole --> MainMenu{主選單 Game::displayMainMenu}
+
+    MainMenu -->|開始冒險| SelectLvl[選擇起始關卡: 第一關/第二關]
+    MainMenu -->|繼續冒險| LoadFile[載入存檔 Game::loadGame]
+    MainMenu -->|遊戲說明| ShowInst[顯示說明面頁]
+    MainMenu -->|離開遊戲| ExitGame([結束程式])
+
+    ShowInst --> MainMenu
+    SelectLvl --> InitPlayer[初始化玩家: 預設 HP 80, SP 7, 載入初始牌組]
+    LoadFile -->|載入成功| StartLevelLoop
+    LoadFile -->|載入失敗| MainMenu
+    InitPlayer --> StartLevelLoop[進入關卡大迴圈 Game::run]
+
+    StartLevelLoop --> LevelCond{當前關卡 <= 2 ?}
+    LevelCond -->|是| BattleStart[生成對應關卡的魔物與 HP]
+    LevelCond -->|否| ShowWin[通關慶典: 遊戲通關，傳奇勇者獲勝！ displayVictoryScreen]
+    ShowWin --> DeleteSaveWin[刪除存檔 save.dat] --> ReturnMenu([返回主選單])
+
+    BattleStart --> AutoSave[自動存檔 Game::saveGame]
+    AutoSave --> PlayBattle[啟動戰鬥迴圈 Battle::start]
+
+    PlayBattle --> CheckStun{怪物是否被眩暈?}
+    CheckStun -->|是| PlayerTurn[玩家回合: 抽牌、顯示手牌顏色標籤與方向鍵選卡、出牌]
+    CheckStun -->|否| MonsterTurn[怪物回合: 根據滾動意圖造成傷害/護盾]
+
+    PlayerTurn --> PlayBattle
+    MonsterTurn --> PlayBattle
+
+    PlayBattle --> CheckHp{雙方 HP 狀態}
+    CheckHp -->|玩家 HP <= 0| ShowDefeat[戰鬥失敗: 顯示勇者戰死畫面 displayDefeatScreen]
+    CheckHp -->|怪物 HP <= 0| BattleWin[戰鬥勝利]
+    CheckHp -->|皆活著| CheckStun
+
+    ShowDefeat --> DeleteSaveDefeat[刪除存檔 save.dat] --> ReturnMenu
+
+    BattleWin --> RoundCond{是否為 Boss 戰 Round 3 ?}
+    
+    RoundCond -->|否| DraftCards[進入卡牌增抽階段 draftCardsPhase]
+    DraftCards --> SaveNextRound[儲存下一回合存檔]
+    SaveNextRound --> AdvanceRound[Round 遞增 1] --> StartLevelLoop
+
+    RoundCond -->|是| LevelCheck{是否為第二關 Level 2?}
+    LevelCheck -->|否| GodGuidance[眾神的指引: 選擇隨機或固定傷害加成]
+    GodGuidance --> SaveNextLvl[儲存新關卡存檔]
+    SaveNextLvl --> AdvanceLevel[Level 遞增 1, Round 重置為 1] --> StartLevelLoop
+    LevelCheck -->|是| ShowWin

@@ -1,0 +1,140 @@
+classDiagram
+    class Character {
+        # string name
+        # int hp
+        # int maxHp
+        # int armor
+        # bool isStunned
+        + Character(name, hp, maxHp)
+        + ~Character() virtual
+        + getName() string
+        + getHp() int
+        + getMaxHp() int
+        + getArmor() int
+        + getIsStunned() bool
+        + setHp(hp) void
+        + setMaxHp(maxHp) void
+        + setArmor(armor) void
+        + setIsStunned(state) void
+        + takeDamage(damage, isTrueDamage, drawCallback) virtual void
+        + resetTurnState() virtual void
+    }
+
+    class Player {
+        - int sp
+        - int maxSp
+        - bool isCountering
+        - int totalTurns
+        - bool acceptedGodsGuidance
+        - vector~Card~ deck
+        - vector~Card~ hand
+        - vector~Card~ discardPile
+        - sortHand() void
+        + Player(hp, maxHp, sp, maxSp)
+        + getSp() int
+        + getMaxSp() int
+        + getIsCountering() bool
+        + setSp(sp) void
+        + setIsCountering(state) void
+        + gainSP(amount) void
+        + useSP(amount) bool
+        + gainArmor(amount) void
+        + heal(amount) void
+        + gainMaxHP(amount) void
+        + initStartingDeck(forceAllCards) void
+        + shuffleDeck() void
+        + addCardToDeck(card) void
+        + setDeckState(deck, hand, discard) void
+        + drawCards(count) vector~Card~
+        + discardHand() void
+        + playCard(index) void
+        + getHand() vector~Card~
+        + getDeck() vector~Card~
+        + getDiscardPile() vector~Card~
+        + resetTurnState() override void
+        + createCardByName(name)$ Card
+    }
+
+    class Monster {
+        - vector~MonsterMove~ moves
+        - MonsterMove nextMove
+        - int actionCount
+        + Monster(name, hp, maxHp, moves)
+        + getNextMove() MonsterMove
+        + rollIntent() void
+        + incrementActionCount() void
+        + getActionCount() int
+        + resetActionCount() void
+    }
+
+    class Card {
+        - string name
+        - int spCost
+        - CardEffectType effectType
+        - int value
+        - string description
+        + Card(name, spCost, effectType, value, description)
+        + getName() string
+        + getSpCost() int
+        + getEffectType() CardEffectType
+        + getValue() int
+        + getDescription() string
+    }
+
+    class MonsterMove {
+        + string name
+        + int damage
+        + int armorGain
+        + string description
+        + bool isTrueDamage
+        + int hits
+        + int drainSp
+        + bool stunsPlayer
+        + MonsterMove(name, damage, armorGain, description, isTrueDamage, hits, drainSp, stunsPlayer)
+    }
+
+    class Battle {
+        - Player& player
+        - Monster& monster
+        - int currentLevel
+        + Battle(player, monster, currentLevel)
+        + start(isFirstRound) bool
+        - playerTurn() bool
+        - monsterTurn() void
+        - executeMonsterTurn() void
+        - displayBattleState() void
+        - displayLogs() void
+    }
+
+    class Game {
+        - Player player
+        - int currentLevel
+        - int currentRound
+        - int menuCursor
+        - int totalElapsedSeconds
+        - bool defeatedLevel1
+        - time_point startTime
+        - displayMainMenu() void
+        - displayInstructions() void
+        - saveGame() void
+        - loadGame() bool
+        - hasSaveFile() bool
+        - displayLevelStartMessage() void
+        - displayVictoryScreen() void
+        - displayDefeatScreen() void
+        - draftCardsPhase() void
+        - playBossWarningAnimation() void
+        - displayStoryDialogue() void
+        - selectStartingLevelPhase() void
+        + Game()
+        + run() void
+    }
+
+    Character <|-- Player : 繼承 (Inheritance)
+    Character <|-- Monster : 繼承 (Inheritance)
+    Player "1" *-- "*" Card : 組合關係 (Composition)
+    Monster "1" *-- "*" MonsterMove : 組合關係 (Composition)
+    Game "1" *-- "1" Player : 控制與擁有 (Owns)
+    Battle --> Player : 參照 (References)
+    Battle --> Monster : 參照 (References)
+    Game ..> Battle : 實體化與驅動 (Creates & Runs)
