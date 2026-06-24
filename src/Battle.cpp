@@ -150,15 +150,37 @@ void Battle::drawUI() {
     // 4. 手牌與動作選擇區
     if (isPlayerTurn && !isBattleOver) {
         std::cout << "【手牌與動作】(使用方向鍵移動，Enter 鍵確認出牌/行動)" << std::endl;
+        std::cout << std::endl;
         
+        // 4.1 普通攻擊 (獨立的一列)
+        bool isSelectedNormal = (cursorIndex == 0);
+        if (isSelectedNormal) {
+            std::cout << "  *==============*" << std::endl;
+            std::cout << "  *" << padUTF8Text("* 普通攻擊 *", 14) << "*" << std::endl;
+            std::cout << "  *" << padUTF8Text("回復: 1 SP", 14) << "*" << std::endl;
+            std::cout << "  *" << padUTF8Text("造成 5 點傷害", 14) << "*" << std::endl;
+            std::cout << "  *==============*" << std::endl;
+        } else {
+            std::cout << "  .--------------." << std::endl;
+            std::cout << "  |" << padUTF8Text("普通攻擊", 14) << "|" << std::endl;
+            std::cout << "  |" << padUTF8Text("回復: 1 SP", 14) << "|" << std::endl;
+            std::cout << "  |" << padUTF8Text("造成 5 點傷害", 14) << "|" << std::endl;
+            std::cout << "  '--------------'" << std::endl;
+        }
+        std::cout << std::endl;
+        std::cout << "  ----------------手牌列表----------------" << std::endl;
+        std::cout << std::endl;
+        
+        // 4.2 手牌 (橫向並排 ASCII 卡牌框，每行最多 5 張)
         const auto& hand = player.getHand();
-        int totalOptions = hand.size() + 1; // 普通攻擊 + 手牌
-        for (int startIdx = 0; startIdx < totalOptions; startIdx += 5) {
-            int endIdx = std::min(startIdx + 5, totalOptions);
+        int totalHand = hand.size();
+        for (int startIdx = 0; startIdx < totalHand; startIdx += 5) {
+            int endIdx = std::min(startIdx + 5, totalHand);
             
             // 第一行：頂框
             for (int i = startIdx; i < endIdx; ++i) {
-                bool isSelected = (cursorIndex == i);
+                int optionId = i + 1;
+                bool isSelected = (cursorIndex == optionId);
                 if (isSelected) {
                     std::cout << "*==============*";
                 } else {
@@ -170,14 +192,10 @@ void Battle::drawUI() {
             
             // 第二行：卡牌名稱
             for (int i = startIdx; i < endIdx; ++i) {
-                bool isSelected = (cursorIndex == i);
-                std::string nameStr;
-                if (i == 0) {
-                    nameStr = isSelected ? "* 普通攻擊 *" : "普通攻擊";
-                } else {
-                    const auto& card = hand[i - 1];
-                    nameStr = isSelected ? ("* " + card.getName() + " *") : card.getName();
-                }
+                int optionId = i + 1;
+                bool isSelected = (cursorIndex == optionId);
+                const auto& card = hand[i];
+                std::string nameStr = isSelected ? ("* " + card.getName() + " *") : card.getName();
                 std::string paddedName = padUTF8Text(nameStr, 14);
                 if (isSelected) {
                     std::cout << "*" << paddedName << "*";
@@ -188,16 +206,12 @@ void Battle::drawUI() {
             }
             std::cout << std::endl;
             
-            // 第三行：能量消耗/效果
+            // 第三行：能量消耗
             for (int i = startIdx; i < endIdx; ++i) {
-                bool isSelected = (cursorIndex == i);
-                std::string spStr;
-                if (i == 0) {
-                    spStr = "回復: 1 SP";
-                } else {
-                    const auto& card = hand[i - 1];
-                    spStr = "消耗: " + std::to_string(card.getSpCost()) + " SP";
-                }
+                int optionId = i + 1;
+                bool isSelected = (cursorIndex == optionId);
+                const auto& card = hand[i];
+                std::string spStr = "消耗: " + std::to_string(card.getSpCost()) + " SP";
                 std::string paddedSp = padUTF8Text(spStr, 14);
                 if (isSelected) {
                     std::cout << "*" << paddedSp << "*";
@@ -210,14 +224,10 @@ void Battle::drawUI() {
             
             // 第四行：效果描述
             for (int i = startIdx; i < endIdx; ++i) {
-                bool isSelected = (cursorIndex == i);
-                std::string desc;
-                if (i == 0) {
-                    desc = "造成 5 點傷害";
-                } else {
-                    const auto& card = hand[i - 1];
-                    desc = getCardShortDesc(card.getName());
-                }
+                int optionId = i + 1;
+                bool isSelected = (cursorIndex == optionId);
+                const auto& card = hand[i];
+                std::string desc = getCardShortDesc(card.getName());
                 std::string paddedDesc = padUTF8Text(desc, 14);
                 if (isSelected) {
                     std::cout << "*" << paddedDesc << "*";
@@ -230,7 +240,8 @@ void Battle::drawUI() {
             
             // 第五行：底框
             for (int i = startIdx; i < endIdx; ++i) {
-                bool isSelected = (cursorIndex == i);
+                int optionId = i + 1;
+                bool isSelected = (cursorIndex == optionId);
                 if (isSelected) {
                     std::cout << "*==============*";
                 } else {
@@ -264,39 +275,53 @@ void Battle::handleInput() {
     int ch = _getch();
     if (ch == 0 || ch == 224) {
         int next_ch = _getch();
-        int totalOptions = player.getHand().size() + 1; // 普通攻擊 + 手牌
+        const auto& hand = player.getHand();
+        int totalHand = hand.size();
         
-        if (next_ch == 75) { // 方向鍵左
-            cursorIndex = (cursorIndex - 1 + totalOptions) % totalOptions;
-            drawUI();
-        } else if (next_ch == 77) { // 方向鍵右
-            cursorIndex = (cursorIndex + 1) % totalOptions;
-            drawUI();
-        } else if (next_ch == 72) { // 方向鍵上
-            int prevIndex = cursorIndex - 5;
-            if (prevIndex >= 0) {
-                cursorIndex = prevIndex;
-            } else {
-                int col = cursorIndex % 5;
-                int lastRow = (totalOptions - 1) / 5;
-                int target = lastRow * 5 + col;
-                if (target >= totalOptions) {
-                    target -= 5;
+        if (cursorIndex == 0) {
+            // 在普通攻擊（最上方）時
+            if (next_ch == 80) { // 按向下，進入手牌第一張
+                if (totalHand > 0) {
+                    cursorIndex = 1;
                 }
-                if (target >= 0) {
-                    cursorIndex = target;
+                drawUI();
+            } else if (next_ch == 72) { // 按向上，循環到手牌的最後一張
+                if (totalHand > 0) {
+                    cursorIndex = totalHand;
                 }
+                drawUI();
             }
-            drawUI();
-        } else if (next_ch == 80) { // 方向鍵下
-            int nextIndex = cursorIndex + 5;
-            if (nextIndex < totalOptions) {
-                cursorIndex = nextIndex;
-            } else {
-                int col = cursorIndex % 5;
-                cursorIndex = col;
+            // 左右鍵在普通攻擊時不做動作，保持選取
+        } else {
+            // 在手牌時 (1 .. totalHand)
+            if (next_ch == 75) { // 方向鍵左 (僅在手牌之間循環)
+                cursorIndex--;
+                if (cursorIndex < 1) {
+                    cursorIndex = totalHand;
+                }
+                drawUI();
+            } else if (next_ch == 77) { // 方向鍵右 (僅在手牌之間循環)
+                cursorIndex++;
+                if (cursorIndex > totalHand) {
+                    cursorIndex = 1;
+                }
+                drawUI();
+            } else if (next_ch == 72) { // 方向鍵上
+                if (cursorIndex <= 5) { // 手牌第一排，按上回到普通攻擊
+                    cursorIndex = 0;
+                } else {
+                    cursorIndex -= 5;
+                }
+                drawUI();
+            } else if (next_ch == 80) { // 方向鍵下
+                int nextIndex = cursorIndex + 5;
+                if (nextIndex <= totalHand) {
+                    cursorIndex = nextIndex;
+                } else {
+                    cursorIndex = 0; // 超出範圍，循環回最上方的普通攻擊
+                }
+                drawUI();
             }
-            drawUI();
         }
     } else if (ch == 13 || ch == 10) { // Enter 鍵
         executePlayerAction();
