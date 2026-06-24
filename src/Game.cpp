@@ -91,7 +91,7 @@ void Game::run() {
         }
     }
 
-    while (currentLevel <= 3) {
+    while (currentLevel <= 2) {
         displayLevelStartMessage();
         
         std::string monsterName;
@@ -121,20 +121,6 @@ void Game::run() {
                     {"震撼重擊", 8, 0, "震撼打擊玩家 (造成 8 點傷害，並使玩家眩暈 1 回合)", false, 1, 0, true},
                     {"狂暴揮擊", 7, 0, "使出狂暴揮擊 (造成 7 點真實傷害！穿透護盾)", true}
                 };
-            }
-        } else if (currentLevel == 2) {
-            if (currentRound == 1) {
-                monsterName = "哀怨的小幽靈";
-                monsterHp = 45;
-                moves = {{"靈魂震懾", 7, 0, "震懾玩家心靈"}, {"虛無狀態", 0, 7, "虛無：獲得 7 點護盾"}};
-            } else if (currentRound == 2) {
-                monsterName = "骷髏精兵";
-                monsterHp = 60;
-                moves = {{"骨刺突襲", 9, 0, "發動尖銳骨刺突襲"}, {"重盾防禦", 0, 9, "舉起重盾：獲得 9 點護盾"}};
-            } else {
-                monsterName = "墮落巫妖王 (第二關 Boss)";
-                monsterHp = 85;
-                moves = {{"死亡凋零", 13, 0, "釋放冰霜死亡凋零 (真實傷害！)", true}, {"亡靈護盾", 4, 8, "召喚護盾：造成 4 點傷害並獲得 8 點護盾", false}};
             }
         } else {
             if (currentRound == 1) {
@@ -205,7 +191,7 @@ void Game::run() {
         }
         
         if (currentRound == 3) {
-            if (currentLevel == 3) {
+            if (currentLevel == 2) {
                 displayVictoryScreen();
                 return;
             } else {
@@ -530,7 +516,7 @@ bool Game::loadGame() {
     }
     
     // 簡單的範圍防錯檢查
-    if (lvl < 1 || lvl > 3 || rnd < 1 || rnd > 3 || hpVal < 0 || maxHpVal <= 0) {
+    if (lvl < 1 || lvl > 2 || rnd < 1 || rnd > 3 || hpVal < 0 || maxHpVal <= 0) {
         file.close();
         return false;
     }
