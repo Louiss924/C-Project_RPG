@@ -152,6 +152,7 @@ classDiagram
     Battle --> Player : 參照 (References)
     Battle --> Monster : 參照 (References)
     Game ..> Battle : 實體化與驅動 (Creates & Runs)
+```
 
 ---
 
@@ -208,3 +209,4 @@ flowchart TD
     GodGuidance --> SaveNextLvl[儲存新關卡存檔]
     SaveNextLvl --> AdvanceLevel[Level 遞增 1, Round 重置為 1] --> StartLevelLoop
     LevelCheck -->|是| ShowWin
+```
