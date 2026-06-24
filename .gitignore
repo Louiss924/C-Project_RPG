@@ -31,3 +31,7 @@ Desktop.ini
 
 # Game Save Files
 save.dat
+
+# Reports and Documentations (Local only)
+doc/
+
