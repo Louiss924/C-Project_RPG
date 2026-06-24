@@ -152,8 +152,6 @@ classDiagram
 
 ## 2. 系統架構與遊戲流程圖 (System Architecture & Game Flow)
 
-本圖以**由左至右 (LR) 橫向展開**說明整個程式的執行脈絡，完美適應簡報的 16:9 版面：
-
 ```mermaid
 flowchart LR
     Start([主程式啟動 main.cpp]) --> InitConsole[初始化控制台] --> MainMenu{主選單}
