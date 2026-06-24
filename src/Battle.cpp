@@ -264,16 +264,37 @@ void Battle::handleInput() {
     int ch = _getch();
     if (ch == 0 || ch == 224) {
         int next_ch = _getch();
-        if (next_ch == 72 || next_ch == 75) { // 方向鍵上 或 左
-            cursorIndex--;
-            if (cursorIndex < 0) {
-                cursorIndex = player.getHand().size();
+        int totalOptions = player.getHand().size() + 1; // 普通攻擊 + 手牌
+        
+        if (next_ch == 75) { // 方向鍵左
+            cursorIndex = (cursorIndex - 1 + totalOptions) % totalOptions;
+            drawUI();
+        } else if (next_ch == 77) { // 方向鍵右
+            cursorIndex = (cursorIndex + 1) % totalOptions;
+            drawUI();
+        } else if (next_ch == 72) { // 方向鍵上
+            int prevIndex = cursorIndex - 5;
+            if (prevIndex >= 0) {
+                cursorIndex = prevIndex;
+            } else {
+                int col = cursorIndex % 5;
+                int lastRow = (totalOptions - 1) / 5;
+                int target = lastRow * 5 + col;
+                if (target >= totalOptions) {
+                    target -= 5;
+                }
+                if (target >= 0) {
+                    cursorIndex = target;
+                }
             }
             drawUI();
-        } else if (next_ch == 80 || next_ch == 77) { // 方向鍵下 或 右
-            cursorIndex++;
-            if (cursorIndex > static_cast<int>(player.getHand().size())) {
-                cursorIndex = 0;
+        } else if (next_ch == 80) { // 方向鍵下
+            int nextIndex = cursorIndex + 5;
+            if (nextIndex < totalOptions) {
+                cursorIndex = nextIndex;
+            } else {
+                int col = cursorIndex % 5;
+                cursorIndex = col;
             }
             drawUI();
         }
